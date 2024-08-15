@@ -54,13 +54,17 @@ app.post('/register', async (req, res) => {
 	res.json(result.rows[0]);
 });
 
-app.get('/user', authenticateToken, (req, res) => {
-	res.send('User content');
+app.get('/user', authenticateToken, async (req, res) => {
+  const result = await pool.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
+  if (result.rows.length === 0) return res.sendStatus(404);
+  res.json(result.rows[0]);
 });
 
-app.get('/admin', authenticateToken, (req, res) => {
-	if (req.user.role !== 'admin') return res.sendStatus(403);
-	res.send('Admin content');
+app.get('/admin', authenticateToken, async (req, res) => {
+  if (req.user.role !== 'admin') return res.sendStatus(403);
+  const result = await pool.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
+  if (result.rows.length === 0) return res.sendStatus(404);
+  res.json(result.rows[0]);
 });
 
 // Device routes
@@ -114,12 +118,13 @@ app.get('/users', authenticateToken, async (req, res) => {
 
 // Update reservation endpoint to set reservation_date
 app.put('/devices/:id/reserve', authenticateToken, async (req, res) => {
-	const {id} = req.params;
-	const result = await pool.query(
-		'UPDATE devices SET reservation = $1, reservation_date = NOW() WHERE id = $2 AND user_id = $3 RETURNING *',
-		[req.user.username, id, req.user.id]
-	);
-	res.json(result.rows[0]);
+  const { id } = req.params;
+  const { reservation } = req.body;
+  const result = await pool.query(
+    'UPDATE devices SET reservation = $1, reservation_date = NOW() WHERE id = $2 RETURNING *',
+    [reservation, id]
+  );
+  res.json(result.rows[0]);
 });
 
 // Mass delete devices
