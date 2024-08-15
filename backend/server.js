@@ -116,6 +116,19 @@ app.get('/users', authenticateToken, async (req, res) => {
 	res.json(result.rows);
 });
 
+app.put('/devices/:id', authenticateToken, async (req, res) => {
+	const { id } = req.params;
+	const { manufacturer, model, internal_name, pid, barcode, ip_address, reservation, location, present_in_lab } = req.body;
+	const result = await pool.query(
+		'UPDATE devices SET manufacturer = $1, model = $2, internal_name = $3, pid = $4, barcode = $5, ip_address = $6, reservation = $7, location = $8, present_in_lab = $9 WHERE id = $10 RETURNING *',
+		[manufacturer, model, internal_name, pid, barcode, ip_address, reservation, location, present_in_lab, id]
+	);
+	if (result.rows.length === 0) {
+		return res.sendStatus(404);
+	}
+	res.json(result.rows[0]);
+});
+
 // Update reservation endpoint to set reservation_date
 app.put('/devices/:id/reserve', authenticateToken, async (req, res) => {
 	const {id} = req.params;
