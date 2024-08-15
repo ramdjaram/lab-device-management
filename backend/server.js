@@ -106,6 +106,13 @@ app.get('/devices', authenticateToken, async (req, res) => {
 	res.json(result.rows);
 });
 
+// Fetch all users for the dropdown
+app.get('/users', authenticateToken, async (req, res) => {
+  const result = await pool.query('SELECT id, username FROM users');
+  res.json(result.rows);
+});
+
+// Update reservation endpoint to set reservation_date
 app.put('/devices/:id/reserve', authenticateToken, async (req, res) => {
 	const {id} = req.params;
 	const result = await pool.query(
@@ -113,6 +120,13 @@ app.put('/devices/:id/reserve', authenticateToken, async (req, res) => {
 		[req.user.username, id, req.user.id]
 	);
 	res.json(result.rows[0]);
+});
+
+// Mass delete devices
+app.post('/devices/mass-delete', authenticateToken, async (req, res) => {
+  const { ids } = req.body;
+  await pool.query('DELETE FROM devices WHERE id = ANY($1)', [ids]);
+  res.sendStatus(204);
 });
 
 app.delete('/devices/:id', authenticateToken, async (req, res) => {
