@@ -1,35 +1,36 @@
 // frontend/src/components/Register.js
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import axios from 'axios';
 
 const Register = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState('user');
+	const [username, setUsername] = useState('');
+	const [password, setPassword] = useState('');
+	const [role, setRole] = useState('user');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-      const authHeader = 'Basic ' + btoa(`${username}:${password}`);
-      await axios.post('http://localhost:5001/register',
-        {
-            username: username,
-            password: password,
-            role: role,
-            // headers: { 'Authorization': authHeader }
-        })
-  };
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+		const authHeader = 'Basic ' + btoa(`${username}:${password}`);
+		await axios.post('http://localhost:5001/register',
+			{
+				username: username,
+				password: password,
+				role: role,
+				// headers: { 'Authorization': authHeader }
+			})
+	};
 
-  return (
-    <form onSubmit={handleSubmit}>
-      <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" />
-      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
-      <select value={role} onChange={(e) => setRole(e.target.value)}>
-        <option value="user">User</option>
-        <option value="admin">Admin</option>
-      </select>
-      <button type="submit">Register</button>
-    </form>
-  );
+	return (
+		<form onSubmit={handleSubmit}>
+			<input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username"/>
+			<input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
+			       placeholder="Password"/>
+			<select value={role} onChange={(e) => setRole(e.target.value)}>
+				<option value="user">User</option>
+				<option value="admin">Admin</option>
+			</select>
+			<button type="submit">Register</button>
+		</form>
+	);
 };
 
 export default Register;
