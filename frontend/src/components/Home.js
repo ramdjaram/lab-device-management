@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import {useNavigate} from 'react-router-dom';
+import './Home.css';
 
 const Home = () => {
 	const [devices, setDevices] = useState([]);
@@ -141,7 +142,7 @@ const Home = () => {
 	};
 
 	return (
-		<div>
+		<div className="container">
 			<h1>Devices</h1>
 			<button onClick={handleLogout}>Logout</button>
 			<div>
