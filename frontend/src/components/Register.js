@@ -9,14 +9,7 @@ const Register = () => {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		const authHeader = 'Basic ' + btoa(`${username}:${password}`);
-		await axios.post('http://localhost:5001/register',
-			{
-				username: username,
-				password: password,
-				role: role,
-				// headers: { 'Authorization': authHeader }
-			})
+		await axios.post('http://localhost:5001/register', {username, password, role})
 	};
 
 	return (
