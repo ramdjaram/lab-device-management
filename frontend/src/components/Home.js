@@ -11,14 +11,16 @@ const Home = () => {
 	const [filteredDevices, setFilteredDevices] = useState([]);
 	const navigate = useNavigate();
 
+	const fetchDevices = async () => {
+		const token = localStorage.getItem('token');
+		const response = await axios.get('http://localhost:5001/devices', {
+			headers: {Authorization: token},
+		});
+		setDevices(response.data);
+	};
+
 	useEffect(() => {
-		const fetchDevices = async () => {
-			const token = localStorage.getItem('token');
-			const response = await axios.get('http://localhost:5001/devices', {
-				headers: {Authorization: token},
-			});
-			setDevices(response.data);
-		};
+		fetchDevices();
 
 		const fetchUserRole = async () => {
 			const token = localStorage.getItem('token');
@@ -36,7 +38,6 @@ const Home = () => {
 			setUsers(response.data);
 		};
 
-		fetchDevices();
 		fetchUserRole();
 		fetchUsers();
 	}, []);
@@ -63,7 +64,7 @@ const Home = () => {
 		await axios.put(`http://localhost:5001/devices/${id}/reserve`, {reservation}, {
 			headers: {Authorization: token},
 		});
-		setSearch(search); // Trigger re-fetch
+		fetchDevices(); // Trigger re-fetch
 	};
 
 	const handleEdit = async (id, field, value) => {
@@ -71,7 +72,7 @@ const Home = () => {
 		await axios.put(`http://localhost:5001/devices/${id}`, {[field]: value}, {
 			headers: {Authorization: token},
 		});
-		setSearch(search); // Trigger re-fetch
+		fetchDevices(); // Trigger re-fetch
 	};
 
 	const handleDelete = async (id) => {
@@ -79,7 +80,7 @@ const Home = () => {
 		await axios.delete(`http://localhost:5001/devices/${id}`, {
 			headers: {Authorization: token},
 		});
-		setSearch(search); // Trigger re-fetch
+		fetchDevices(); // Trigger re-fetch
 	};
 
 	const handleMassDelete = async () => {
@@ -87,7 +88,7 @@ const Home = () => {
 		await axios.post('http://localhost:5001/devices/mass-delete', {ids: selectedDevices}, {
 			headers: {Authorization: token},
 		});
-		setSearch(search); // Trigger re-fetch
+		fetchDevices(); // Trigger re-fetch
 	};
 
 	const handleCheckboxChange = (id) => {
