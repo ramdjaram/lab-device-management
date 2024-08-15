@@ -143,12 +143,12 @@ const Home = () => {
 
 	return (
 		<div className="container">
+			<button className="logout-button" onClick={handleLogout}>Logout</button>
 			<h1>Devices</h1>
-			<button onClick={handleLogout}>Logout</button>
 			<div>
 				<input
 					type="text"
-					placeholder="Search by Barcode, Model, or Reservation"
+					placeholder="Search by Barcode, Model or Reservation"
 					value={search}
 					onChange={handleSearchChange}
 				/>
