@@ -117,16 +117,39 @@ app.get('/users', authenticateToken, async (req, res) => {
 });
 
 app.put('/devices/:id', authenticateToken, async (req, res) => {
-	const { id } = req.params;
-	const { manufacturer, model, internal_name, pid, barcode, ip_address, reservation, location, present_in_lab } = req.body;
-	const result = await pool.query(
-		'UPDATE devices SET manufacturer = $1, model = $2, internal_name = $3, pid = $4, barcode = $5, ip_address = $6, reservation = $7, location = $8, present_in_lab = $9 WHERE id = $10 RETURNING *',
-		[manufacturer, model, internal_name, pid, barcode, ip_address, reservation, location, present_in_lab, id]
-	);
-	if (result.rows.length === 0) {
-		return res.sendStatus(404);
-	}
-	res.json(result.rows[0]);
+  const { id } = req.params;
+  const {
+    manufacturer,
+    model,
+    internal_name,
+    pid,
+    barcode,
+    ip_address,
+    reservation,
+    location,
+    present_in_lab
+  } = req.body;
+
+  // Ensure all fields are provided, using default values if necessary
+  const result = await pool.query(
+    `UPDATE devices SET 
+      manufacturer = COALESCE($1, manufacturer), 
+      model = COALESCE($2, model), 
+      internal_name = COALESCE($3, internal_name), 
+      pid = COALESCE($4, pid), 
+      barcode = COALESCE($5, barcode), 
+      ip_address = COALESCE($6, ip_address), 
+      reservation = COALESCE($7, reservation), 
+      location = COALESCE($8, location), 
+      present_in_lab = COALESCE($9, present_in_lab) 
+    WHERE id = $10 RETURNING *`,
+    [manufacturer, model, internal_name, pid, barcode, ip_address, reservation, location, present_in_lab, id]
+  );
+
+  if (result.rows.length === 0) {
+    return res.sendStatus(404);
+  }
+  res.json(result.rows[0]);
 });
 
 // Update reservation endpoint to set reservation_date
