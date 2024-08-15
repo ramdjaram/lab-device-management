@@ -9,7 +9,7 @@ const Home = () => {
   useEffect(() => {
     const fetchDevices = async () => {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/devices', {
+      const response = await axios.get('http://localhost:5001/devices', {
         headers: { Authorization: token },
         params: search,
       });
@@ -18,7 +18,7 @@ const Home = () => {
 
     const fetchUserRole = async () => {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/user', {
+      const response = await axios.get('http://localhost:5001/user', {
         headers: { Authorization: token },
       });
       setRole(response.data.role);
@@ -34,7 +34,7 @@ const Home = () => {
 
   const handleReserve = async (id) => {
     const token = localStorage.getItem('token');
-    await axios.put(`http://localhost:5000/devices/${id}/reserve`, {}, {
+    await axios.put(`http://localhost:5001/devices/${id}/reserve`, {}, {
       headers: { Authorization: token },
     });
     setSearch({ ...search }); // Trigger re-fetch
@@ -42,7 +42,7 @@ const Home = () => {
 
   const handleDelete = async (id) => {
     const token = localStorage.getItem('token');
-    await axios.delete(`http://localhost:5000/devices/${id}`, {
+    await axios.delete(`http://localhost:5001/devices/${id}`, {
       headers: { Authorization: token },
     });
     setSearch({ ...search }); // Trigger re-fetch

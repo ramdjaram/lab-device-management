@@ -1,3 +1,4 @@
+// frontend/src/components/Login.js
 import React, { useState } from 'react';
 import axios from 'axios';
 
@@ -7,7 +8,11 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await axios.post('http://localhost:5001/login', { username, password });
+    const authHeader = 'Basic ' + btoa(`${username}:${password}`);
+    const response = await axios.get('http://localhost:5001/user', {
+      headers: { 'Authorization': authHeader }
+    });
+    console.log(response.data);
   };
 
   return (

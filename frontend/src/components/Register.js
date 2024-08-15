@@ -1,3 +1,4 @@
+// frontend/src/components/Register.js
 import React, { useState } from 'react';
 import axios from 'axios';
 
@@ -8,7 +9,14 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await axios.post('http://localhost:5001/register', { username, password, role });
+      const authHeader = 'Basic ' + btoa(`${username}:${password}`);
+      await axios.post('http://localhost:5001/register',
+        {
+            username: username,
+            password: password,
+            role: role,
+            // headers: { 'Authorization': authHeader }
+        })
   };
 
   return (

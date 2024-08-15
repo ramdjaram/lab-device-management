@@ -1,30 +1,43 @@
+// backend/server.js
 const express = require('express');
 const bodyParser = require('body-parser');
-const jwt = require('jsonwebtoken');
+const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const { Pool } = require('pg');
 require('dotenv').config();
 
 const app = express();
+app.use(cors());
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
-const authenticateJWT = (req, res, next) => {
-  const token = req.header('Authorization');
-  if (token) {
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-      if (err) {
-        return res.sendStatus(403);
-      }
+const basicAuth = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader) {
+    return res.sendStatus(401);
+  }
+
+  const base64Credentials = authHeader.split(' ')[1];
+  const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+  const [username, password] = credentials.split(':');
+
+  pool.query('SELECT * FROM users WHERE username = $1', [username], async (err, result) => {
+    if (err || result.rows.length === 0) {
+      return res.sendStatus(401);
+    }
+
+    const user = result.rows[0];
+    if (await bcrypt.compare(password, user.password)) {
       req.user = user;
       next();
-    });
-  } else {
-    res.sendStatus(401);
-  }
+    } else {
+      res.sendStatus(401);
+    }
+  });
 };
 
 const authorizeRole = (role) => {
@@ -46,28 +59,16 @@ app.post('/register', async (req, res) => {
   res.json(result.rows[0]);
 });
 
-app.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-  const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
-  const user = result.rows[0];
-  if (user && await bcrypt.compare(password, user.password)) {
-    const token = jwt.sign({ username: user.username, role: user.role }, process.env.JWT_SECRET);
-    res.json({ token });
-  } else {
-    res.sendStatus(401);
-  }
-});
-
-app.get('/admin', authenticateJWT, authorizeRole('admin'), (req, res) => {
+app.get('/admin', basicAuth, authorizeRole('admin'), (req, res) => {
   res.send('Admin content');
 });
 
-app.get('/user', authenticateJWT, authorizeRole('user'), (req, res) => {
+app.get('/user', basicAuth, authorizeRole('user'), (req, res) => {
   res.send('User content');
 });
 
 // Device routes
-app.post('/devices', authenticateJWT, authorizeRole('admin'), async (req, res) => {
+app.post('/devices', basicAuth, authorizeRole('admin'), async (req, res) => {
   const { manufacturer, model, internal_name, pid, barcode, ip_address, reservation, location, reservation_date, present_in_lab } = req.body;
   const result = await pool.query(
     'INSERT INTO devices (manufacturer, model, internal_name, pid, barcode, ip_address, reservation, location, reservation_date, present_in_lab, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *',
@@ -76,7 +77,7 @@ app.post('/devices', authenticateJWT, authorizeRole('admin'), async (req, res) =
   res.json(result.rows[0]);
 });
 
-app.get('/devices', authenticateJWT, async (req, res) => {
+app.get('/devices', basicAuth, async (req, res) => {
   const { barcode, model, reservation } = req.query;
   let query = 'SELECT * FROM devices WHERE user_id = $1';
   const params = [req.user.id];
@@ -98,7 +99,7 @@ app.get('/devices', authenticateJWT, async (req, res) => {
   res.json(result.rows);
 });
 
-app.put('/devices/:id/reserve', authenticateJWT, authorizeRole('user'), async (req, res) => {
+app.put('/devices/:id/reserve', basicAuth, authorizeRole('user'), async (req, res) => {
   const { id } = req.params;
   const result = await pool.query(
     'UPDATE devices SET reservation = $1, reservation_date = NOW() WHERE id = $2 AND user_id = $3 RETURNING *',
@@ -107,7 +108,7 @@ app.put('/devices/:id/reserve', authenticateJWT, authorizeRole('user'), async (r
   res.json(result.rows[0]);
 });
 
-app.delete('/devices/:id', authenticateJWT, authorizeRole('admin'), async (req, res) => {
+app.delete('/devices/:id', basicAuth, authorizeRole('admin'), async (req, res) => {
   const { id } = req.params;
   await pool.query('DELETE FROM devices WHERE id = $1 AND user_id = $2', [id, req.user.id]);
   res.sendStatus(204);
