@@ -153,7 +153,7 @@ const Home = () => {
 					onChange={handleSearchChange}
 				/>
 			</div>
-			<button onClick={handleMassDelete}>Delete Selected</button>
+			{role === 'admin' && <button onClick={handleMassDelete}>Delete Selected</button>}
 			<table>
 				<thead>
 				<tr>
