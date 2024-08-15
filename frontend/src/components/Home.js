@@ -5,9 +5,10 @@ import {useNavigate} from 'react-router-dom';
 const Home = () => {
 	const [devices, setDevices] = useState([]);
 	const [role, setRole] = useState('');
-	const [search, setSearch] = useState({});
+	const [search, setSearch] = useState('');
 	const [users, setUsers] = useState([]);
 	const [selectedDevices, setSelectedDevices] = useState([]);
+	const [filteredDevices, setFilteredDevices] = useState([]);
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -15,7 +16,6 @@ const Home = () => {
 			const token = localStorage.getItem('token');
 			const response = await axios.get('http://localhost:5001/devices', {
 				headers: {Authorization: token},
-				params: search,
 			});
 			setDevices(response.data);
 		};
@@ -39,10 +39,23 @@ const Home = () => {
 		fetchDevices();
 		fetchUserRole();
 		fetchUsers();
-	}, [search]);
+	}, []);
+
+	useEffect(() => {
+		const filterDevices = () => {
+			const filtered = devices.filter(device =>
+				device.barcode.toLowerCase().includes(search.toLowerCase()) ||
+				device.model.toLowerCase().includes(search.toLowerCase()) ||
+				device.reservation.toLowerCase().includes(search.toLowerCase())
+			);
+			setFilteredDevices(filtered);
+		};
+
+		filterDevices();
+	}, [search, devices]);
 
 	const handleSearchChange = (e) => {
-		setSearch({...search, [e.target.name]: e.target.value});
+		setSearch(e.target.value);
 	};
 
 	const handleReserve = async (id, reservation) => {
@@ -50,7 +63,7 @@ const Home = () => {
 		await axios.put(`http://localhost:5001/devices/${id}/reserve`, {reservation}, {
 			headers: {Authorization: token},
 		});
-		setSearch({...search}); // Trigger re-fetch
+		setSearch(search); // Trigger re-fetch
 	};
 
 	const handleEdit = async (id, field, value) => {
@@ -58,7 +71,7 @@ const Home = () => {
 		await axios.put(`http://localhost:5001/devices/${id}`, {[field]: value}, {
 			headers: {Authorization: token},
 		});
-		setSearch({...search}); // Trigger re-fetch
+		setSearch(search); // Trigger re-fetch
 	};
 
 	const handleDelete = async (id) => {
@@ -66,7 +79,7 @@ const Home = () => {
 		await axios.delete(`http://localhost:5001/devices/${id}`, {
 			headers: {Authorization: token},
 		});
-		setSearch({...search}); // Trigger re-fetch
+		setSearch(search); // Trigger re-fetch
 	};
 
 	const handleMassDelete = async () => {
@@ -74,7 +87,7 @@ const Home = () => {
 		await axios.post('http://localhost:5001/devices/mass-delete', {ids: selectedDevices}, {
 			headers: {Authorization: token},
 		});
-		setSearch({...search}); // Trigger re-fetch
+		setSearch(search); // Trigger re-fetch
 	};
 
 	const handleCheckboxChange = (id) => {
@@ -95,12 +108,12 @@ const Home = () => {
 			<h1>Devices</h1>
 			<button onClick={handleLogout}>Logout</button>
 			<div>
-				<input type="text" name="barcode" placeholder="Search by Barcode" value={search.barcode}
-				       onChange={handleSearchChange}/>
-				<input type="text" name="model" placeholder="Search by Model" value={search.model}
-				       onChange={handleSearchChange}/>
-				<input type="text" name="reservation" placeholder="Search by Reservation" value={search.reservation}
-				       onChange={handleSearchChange}/>
+				<input
+					type="text"
+					placeholder="Search by Barcode, Model, or Reservation"
+					value={search}
+					onChange={handleSearchChange}
+				/>
 			</div>
 			<button onClick={handleMassDelete}>Delete Selected</button>
 			<table>
@@ -121,7 +134,7 @@ const Home = () => {
 				</tr>
 				</thead>
 				<tbody>
-				{devices.map(device => (
+				{filteredDevices.map(device => (
 					<tr key={device.id}>
 						<td>
 							<input
@@ -132,69 +145,95 @@ const Home = () => {
 						</td>
 						<td>
 							{role === 'admin' ? (
-								<input type="text" value={device.manufacturer}
-								       onChange={(e) => handleEdit(device.id, 'manufacturer', e.target.value)}/>
+								<input
+									type="text"
+									value={device.manufacturer}
+									onChange={(e) => handleEdit(device.id, 'manufacturer', e.target.value)}
+								/>
 							) : (
 								device.manufacturer
 							)}
 						</td>
 						<td>
 							{role === 'admin' ? (
-								<input type="text" value={device.model}
-								       onChange={(e) => handleEdit(device.id, 'model', e.target.value)}/>
+								<input
+									type="text"
+									value={device.model}
+									onChange={(e) => handleEdit(device.id, 'model', e.target.value)}
+								/>
 							) : (
 								device.model
 							)}
 						</td>
 						<td>
 							{role === 'admin' ? (
-								<input type="text" value={device.internal_name}
-								       onChange={(e) => handleEdit(device.id, 'internal_name', e.target.value)}/>
+								<input
+									type="text"
+									value={device.internal_name}
+									onChange={(e) => handleEdit(device.id, 'internal_name', e.target.value)}
+								/>
 							) : (
 								device.internal_name
 							)}
 						</td>
 						<td>
 							{role === 'admin' ? (
-								<input type="text" value={device.pid}
-								       onChange={(e) => handleEdit(device.id, 'pid', e.target.value)}/>
+								<input
+									type="text"
+									value={device.pid}
+									onChange={(e) => handleEdit(device.id, 'pid', e.target.value)}
+								/>
 							) : (
 								device.pid
 							)}
 						</td>
 						<td>
 							{role === 'admin' ? (
-								<input type="text" value={device.barcode}
-								       onChange={(e) => handleEdit(device.id, 'barcode', e.target.value)}/>
+								<input
+									type="text"
+									value={device.barcode}
+									onChange={(e) => handleEdit(device.id, 'barcode', e.target.value)}
+								/>
 							) : (
 								device.barcode
 							)}
 						</td>
 						<td>
 							{role === 'admin' ? (
-								<input type="text" value={device.ip_address}
-								       onChange={(e) => handleEdit(device.id, 'ip_address', e.target.value)}/>
+								<input
+									type="text"
+									value={device.ip_address}
+									onChange={(e) => handleEdit(device.id, 'ip_address', e.target.value)}
+								/>
 							) : (
 								device.ip_address
 							)}
 						</td>
 						<td>
 							{role === 'user' ? (
-								<select value={device.reservation}
-								        onChange={(e) => handleReserve(device.id, e.target.value)}>
+								<select
+									value={device.reservation}
+									onChange={(e) => handleReserve(device.id, e.target.value)}
+								>
 									{users.map(user => (
 										<option key={user.id} value={user.username}>{user.username}</option>
 									))}
 								</select>
 							) : (
-								<input type="text" value={device.reservation}
-								       onChange={(e) => handleEdit(device.id, 'reservation', e.target.value)}/>
+								<input
+									type="text"
+									value={device.reservation}
+									onChange={(e) => handleEdit(device.id, 'reservation', e.target.value)}
+								/>
 							)}
 						</td>
 						<td>
 							{role === 'admin' ? (
-								<input type="text" value={device.location}
-								       onChange={(e) => handleEdit(device.id, 'location', e.target.value)}/>
+								<input
+									type="text"
+									value={device.location}
+									onChange={(e) => handleEdit(device.id, 'location', e.target.value)}
+								/>
 							) : (
 								device.location
 							)}
