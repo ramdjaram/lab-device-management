@@ -18,12 +18,17 @@ const Login = () => {
 		}
 	};
 
+	const handleRegister = () => {
+		navigate('/register'); // Navigate to register page
+	};
+
 	return (
 		<form onSubmit={handleSubmit}>
 			<input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username"/>
 			<input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
 			       placeholder="Password"/>
 			<button type="submit">Login</button>
+			<button type="button" onClick={handleRegister}>Register</button>
 		</form>
 	);
 };
