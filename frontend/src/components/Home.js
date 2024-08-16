@@ -116,10 +116,14 @@ const Home = () => {
 
 	const handleDelete = async (id) => {
 		const token = localStorage.getItem('token');
-		await axios.delete(`http://localhost:5001/devices/${id}`, {
-			headers: {Authorization: token},
-		});
-		fetchDevices(); // Trigger re-fetch
+		try {
+			await axios.delete(`http://localhost:5001/devices/${id}`, {
+				headers: {Authorization: token},
+			});
+			fetchDevices(); // Trigger re-fetch
+		} catch (error) {
+			console.error('Failed to delete device', error);
+		}
 	};
 
 	const handleMassDelete = async () => {
@@ -159,7 +163,7 @@ const Home = () => {
 			<table>
 				<thead>
 				<tr>
-					<th>Select</th>
+					{role === 'admin' && <th>Select</th>}
 					<th>Manufacturer</th>
 					<th>Model</th>
 					<th>Internal Name</th>
@@ -176,13 +180,13 @@ const Home = () => {
 				<tbody>
 				{filteredDevices.map(device => (
 					<tr key={device.id}>
-						<td>
+						{role === 'admin' && <td>
 							<input
 								type="checkbox"
 								checked={selectedDevices.includes(device.id)}
 								onChange={() => handleCheckboxChange(device.id)}
 							/>
-						</td>
+						</td>}
 						<td>
 							{role === 'admin' ? (
 								<input

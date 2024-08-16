@@ -171,8 +171,11 @@ app.post('/devices/mass-delete', authenticateToken, async (req, res) => {
 });
 
 app.delete('/devices/:id', authenticateToken, async (req, res) => {
-	const {id} = req.params;
-	await pool.query('DELETE FROM devices WHERE id = $1 AND user_id = $2', [id, req.user.id]);
+	const { id } = req.params;
+	const result = await pool.query('DELETE FROM devices WHERE id = $1 RETURNING *', [id]);
+	if (result.rowCount === 0) {
+		return res.sendStatus(404);
+	}
 	res.sendStatus(204);
 });
 
