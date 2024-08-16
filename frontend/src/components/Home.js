@@ -12,7 +12,8 @@ const Home = () => {
 	const [filteredDevices, setFilteredDevices] = useState([]);
 	const [editedDevices, setEditedDevices] = useState({});
 	const [deviceCount, setDeviceCount] = useState(0);
-	const [isAnySelected, setIsAnySelected] = useState(false); // New state variable
+	const [isAnySelected, setIsAnySelected] = useState(false);
+	const [newDevice, setNewDevice] = useState({}); // New state variable for new device
 	const navigate = useNavigate();
 
 	const fetchDevices = async () => {
@@ -61,7 +62,7 @@ const Home = () => {
 	}, [search, devices]);
 
 	useEffect(() => {
-		setIsAnySelected(selectedDevices.length > 0); // Update isAnySelected when selectedDevices changes
+		setIsAnySelected(selectedDevices.length > 0);
 	}, [selectedDevices]);
 
 	const handleSearchChange = (e) => {
@@ -73,7 +74,7 @@ const Home = () => {
 		await axios.put(`http://localhost:5001/devices/${id}/reserve`, {reservation}, {
 			headers: {Authorization: token},
 		});
-		fetchDevices(); // Trigger re-fetch
+		fetchDevices();
 	};
 
 	const handleEditChange = (id, field, value) => {
@@ -91,7 +92,6 @@ const Home = () => {
 		const editedDevice = editedDevices[id];
 		const device = devices.find(device => device.id === id);
 
-		// Ensure all fields are sent, using existing values if not edited
 		const updatedDevice = {
 			manufacturer: editedDevice?.manufacturer || device.manufacturer,
 			model: editedDevice?.model || device.model,
@@ -108,7 +108,7 @@ const Home = () => {
 			await axios.put(`http://localhost:5001/devices/${id}`, updatedDevice, {
 				headers: {Authorization: token},
 			});
-			fetchDevices(); // Trigger re-fetch
+			fetchDevices();
 			setEditedDevices(prevState => {
 				const newState = {...prevState};
 				delete newState[id];
@@ -128,7 +128,7 @@ const Home = () => {
 			await axios.delete(`http://localhost:5001/devices/${id}`, {
 				headers: {Authorization: token},
 			});
-			fetchDevices(); // Trigger re-fetch
+			fetchDevices();
 		} catch (error) {
 			console.error('Failed to delete device', error);
 		}
@@ -139,7 +139,7 @@ const Home = () => {
 		await axios.post('http://localhost:5001/devices/mass-delete', {ids: selectedDevices}, {
 			headers: {Authorization: token},
 		});
-		fetchDevices(); // Trigger re-fetch
+		fetchDevices();
 	};
 
 	const handleCheckboxChange = (id) => {
@@ -151,8 +151,28 @@ const Home = () => {
 	};
 
 	const handleLogout = () => {
-		localStorage.removeItem('token'); // Remove the token from localStorage
-		navigate('/login'); // Redirect to login page
+		localStorage.removeItem('token');
+		navigate('/login');
+	};
+
+	const handleNewDeviceChange = (field, value) => {
+		setNewDevice(prevState => ({
+			...prevState,
+			[field]: value
+		}));
+	};
+
+	const handleAddDevice = async () => {
+		const token = localStorage.getItem('token');
+		try {
+			await axios.post('http://localhost:5001/devices', newDevice, {
+				headers: {Authorization: token},
+			});
+			fetchDevices();
+			setNewDevice({});
+		} catch (error) {
+			console.error('Failed to add device', error);
+		}
 	};
 
 	return (
@@ -187,6 +207,91 @@ const Home = () => {
 				</tr>
 				</thead>
 				<tbody>
+				{role === 'admin' && (
+					<tr>
+						<td colSpan={role === 'admin' ? 12 : 11}>
+							<button onClick={handleAddDevice}>Add Device</button>
+						</td>
+					</tr>
+				)}
+				{role === 'admin' && (
+					<tr>
+						<td></td>
+						<td>
+							<input
+								type="text"
+								value={newDevice.manufacturer || ''}
+								onChange={(e) => handleNewDeviceChange('manufacturer', e.target.value)}
+							/>
+						</td>
+						<td>
+							<input
+								type="text"
+								value={newDevice.model || ''}
+								onChange={(e) => handleNewDeviceChange('model', e.target.value)}
+							/>
+						</td>
+						<td>
+							<input
+								type="text"
+								value={newDevice.internal_name || ''}
+								onChange={(e) => handleNewDeviceChange('internal_name', e.target.value)}
+							/>
+						</td>
+						<td>
+							<input
+								type="text"
+								value={newDevice.pid || ''}
+								onChange={(e) => handleNewDeviceChange('pid', e.target.value)}
+							/>
+						</td>
+						<td>
+							<input
+								type="text"
+								value={newDevice.barcode || ''}
+								onChange={(e) => handleNewDeviceChange('barcode', e.target.value)}
+							/>
+						</td>
+						<td>
+							<input
+								type="text"
+								value={newDevice.ip_address || ''}
+								onChange={(e) => handleNewDeviceChange('ip_address', e.target.value)}
+							/>
+						</td>
+						<td>
+							<input
+								type="text"
+								value={newDevice.reservation || ''}
+								onChange={(e) => handleNewDeviceChange('reservation', e.target.value)}
+							/>
+						</td>
+						<td>
+							<input
+								type="text"
+								value={newDevice.location || ''}
+								onChange={(e) => handleNewDeviceChange('location', e.target.value)}
+							/>
+						</td>
+						<td>
+							<input
+								type="date"
+								value={newDevice.reservation_date || ''}
+								onChange={(e) => handleNewDeviceChange('reservation_date', e.target.value)}
+							/>
+						</td>
+						<td>
+							<select
+								value={newDevice.present_in_lab || ''}
+								onChange={(e) => handleNewDeviceChange('present_in_lab', e.target.value)}
+							>
+								<option value="true">Yes</option>
+								<option value="false">No</option>
+							</select>
+						</td>
+						<td></td>
+					</tr>
+				)}
 				{filteredDevices.map(device => (
 					<tr key={device.id}>
 						{role === 'admin' && <td>
@@ -292,23 +397,7 @@ const Home = () => {
 							)}
 						</td>
 						<td>{device.reservation_date}</td>
-						{role === 'user' ? (
-							<td>
-								<select
-									value={device.present_in_lab}
-									onChange={(e) => handleEditChange(device.id, 'present_in_lab', e.target.value)}
-								>
-									<option value="Yes">Yes</option>
-									<option value="No">No</option>
-								</select>
-							</td>
-						) : (
-							<input
-								type="text"
-								value={editedDevices[device.id]?.present_in_lab || device.present_in_lab}
-								onChange={(e) => handleEditChange(device.id, 'present_in_lab', e.target.value)}
-							/>
-						)}
+						<td>{device.present_in_lab ? 'Yes' : 'No'}</td>
 						{role === 'admin' && (
 							<td>
 								<button onClick={() => handleApplyChanges(device.id)}>Apply</button>
