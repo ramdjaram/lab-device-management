@@ -292,7 +292,23 @@ const Home = () => {
 							)}
 						</td>
 						<td>{device.reservation_date}</td>
-						<td>{device.reservation === '' ? 'Yes' : 'No'}</td>
+						{role === 'user' ? (
+							<td>
+								<select
+									value={device.present_in_lab}
+									onChange={(e) => handleEditChange(device.id, 'present_in_lab', e.target.value)}
+								>
+									<option value="Yes">Yes</option>
+									<option value="No">No</option>
+								</select>
+							</td>
+						) : (
+							<input
+								type="text"
+								value={editedDevices[device.id]?.present_in_lab || device.present_in_lab}
+								onChange={(e) => handleEditChange(device.id, 'present_in_lab', e.target.value)}
+							/>
+						)}
 						{role === 'admin' && (
 							<td>
 								<button onClick={() => handleApplyChanges(device.id)}>Apply</button>
