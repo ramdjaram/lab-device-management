@@ -292,7 +292,7 @@ const Home = () => {
 							)}
 						</td>
 						<td>{device.reservation_date}</td>
-						<td>{device.reservation !== '' ? 'Yes' : 'No'}</td>
+						<td>{device.reservation === '' ? 'Yes' : 'No'}</td>
 						{role === 'admin' && (
 							<td>
 								<button onClick={() => handleApplyChanges(device.id)}>Apply</button>
