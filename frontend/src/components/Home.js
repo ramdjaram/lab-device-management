@@ -12,6 +12,7 @@ const Home = () => {
 	const [filteredDevices, setFilteredDevices] = useState([]);
 	const [editedDevices, setEditedDevices] = useState({});
 	const [deviceCount, setDeviceCount] = useState(0);
+	const [isAnySelected, setIsAnySelected] = useState(false); // New state variable
 	const navigate = useNavigate();
 
 	const fetchDevices = async () => {
@@ -58,6 +59,10 @@ const Home = () => {
 
 		filterDevices();
 	}, [search, devices]);
+
+	useEffect(() => {
+		setIsAnySelected(selectedDevices.length > 0); // Update isAnySelected when selectedDevices changes
+	}, [selectedDevices]);
 
 	const handleSearchChange = (e) => {
 		setSearch(e.target.value);
@@ -121,7 +126,7 @@ const Home = () => {
 		const token = localStorage.getItem('token');
 		try {
 			await axios.delete(`http://localhost:5001/devices/${id}`, {
-				headers: { Authorization: token },
+				headers: {Authorization: token},
 			});
 			fetchDevices(); // Trigger re-fetch
 		} catch (error) {
@@ -162,7 +167,8 @@ const Home = () => {
 					onChange={handleSearchChange}
 				/>
 			</div>
-			{role === 'admin' && <button className="delete-button" onClick={handleMassDelete}>Delete Selected</button>}
+			{role === 'admin' && isAnySelected &&
+				<button className="delete-button" onClick={handleMassDelete}>Delete Selected</button>}
 			<table>
 				<thead>
 				<tr>
@@ -290,7 +296,8 @@ const Home = () => {
 						{role === 'admin' && (
 							<td>
 								<button onClick={() => handleApplyChanges(device.id)}>Apply</button>
-								<button className="delete-button" onClick={() => handleDelete(device.id)}>Delete</button>
+								<button className="delete-button" onClick={() => handleDelete(device.id)}>Delete
+								</button>
 							</td>
 						)}
 					</tr>
