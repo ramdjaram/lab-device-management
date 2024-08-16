@@ -115,10 +115,13 @@ const Home = () => {
 	};
 
 	const handleDelete = async (id) => {
+		const confirmDelete = window.confirm('Are you sure you want to delete this device?');
+		if (!confirmDelete) return;
+
 		const token = localStorage.getItem('token');
 		try {
 			await axios.delete(`http://localhost:5001/devices/${id}`, {
-				headers: {Authorization: token},
+				headers: { Authorization: token },
 			});
 			fetchDevices(); // Trigger re-fetch
 		} catch (error) {
@@ -159,7 +162,7 @@ const Home = () => {
 					onChange={handleSearchChange}
 				/>
 			</div>
-			{role === 'admin' && <button onClick={handleMassDelete}>Delete Selected</button>}
+			{role === 'admin' && <button className="delete-button" onClick={handleMassDelete}>Delete Selected</button>}
 			<table>
 				<thead>
 				<tr>
@@ -287,7 +290,7 @@ const Home = () => {
 						{role === 'admin' && (
 							<td>
 								<button onClick={() => handleApplyChanges(device.id)}>Apply</button>
-								<button onClick={() => handleDelete(device.id)}>Delete</button>
+								<button className="delete-button" onClick={() => handleDelete(device.id)}>Delete</button>
 							</td>
 						)}
 					</tr>

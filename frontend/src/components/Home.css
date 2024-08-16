@@ -79,3 +79,15 @@ tr:hover {
 .logout-button:hover {
     background-color: #0056b3;
 }
+
+.delete-button {
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.delete-button:hover {
+    background-color: #c82333;
+}
