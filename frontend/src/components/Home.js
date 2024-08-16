@@ -11,6 +11,7 @@ const Home = () => {
 	const [selectedDevices, setSelectedDevices] = useState([]);
 	const [filteredDevices, setFilteredDevices] = useState([]);
 	const [editedDevices, setEditedDevices] = useState({});
+	const [deviceCount, setDeviceCount] = useState(0);
 	const navigate = useNavigate();
 
 	const fetchDevices = async () => {
@@ -19,6 +20,7 @@ const Home = () => {
 			headers: {Authorization: token},
 		});
 		setDevices(response.data);
+		setDeviceCount(response.data.length);
 	};
 
 	useEffect(() => {
@@ -144,7 +146,7 @@ const Home = () => {
 	return (
 		<div className="container">
 			<button className="logout-button" onClick={handleLogout}>Logout</button>
-			<h1>Devices</h1>
+			<h1>Devices ({deviceCount})</h1>
 			<div>
 				<input
 					type="text"
