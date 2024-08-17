@@ -208,14 +208,7 @@ const Home = () => {
 				</thead>
 				<tbody>
 				{role === 'admin' && (
-					<tr>
-						<td colSpan={role === 'admin' ? 12 : 11}>
-							<button onClick={handleAddDevice}>Add Device</button>
-						</td>
-					</tr>
-				)}
-				{role === 'admin' && (
-					<tr>
+					<tr style={{'background-color': '#4caf50'}}>
 						<td></td>
 						<td>
 							<input
@@ -289,7 +282,9 @@ const Home = () => {
 								<option value="false">No</option>
 							</select>
 						</td>
-						<td></td>
+						<td colSpan={role === 'admin' ? 12 : 11}>
+							<button onClick={handleAddDevice}>Add Device</button>
+						</td>
 					</tr>
 				)}
 				{filteredDevices.map(device => (
