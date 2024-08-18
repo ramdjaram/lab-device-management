@@ -6,6 +6,7 @@ import '../styles/Home.css';
 const Home = () => {
 	const [devices, setDevices] = useState([]);
 	const [role, setRole] = useState('');
+	const [username, setUsername] = useState(''); // Define username state
 	const [search, setSearch] = useState('');
 	const [users, setUsers] = useState([]);
 	const [selectedDevices, setSelectedDevices] = useState([]);
@@ -13,7 +14,7 @@ const Home = () => {
 	const [editedDevices, setEditedDevices] = useState({});
 	const [deviceCount, setDeviceCount] = useState(0);
 	const [isAnySelected, setIsAnySelected] = useState(false);
-	const [newDevice, setNewDevice] = useState({}); // New state variable for new device
+	const [newDevice, setNewDevice] = useState({});
 	const navigate = useNavigate();
 
 	const fetchDevices = async () => {
@@ -27,13 +28,13 @@ const Home = () => {
 
 	useEffect(() => {
 		fetchDevices();
-
 		const fetchUserRole = async () => {
 			const token = localStorage.getItem('token');
 			const response = await axios.get('http://localhost:5001/user', {
 				headers: {Authorization: token},
 			});
 			setRole(response.data.role);
+			setUsername(response.data.username); // Set username
 		};
 
 		const fetchUsers = async () => {
@@ -140,6 +141,8 @@ const Home = () => {
 			headers: {Authorization: token},
 		});
 		fetchDevices();
+		setSelectedDevices([]);
+		setIsAnySelected(false);
 	};
 
 	const handleCheckboxChange = (id) => {
@@ -175,6 +178,41 @@ const Home = () => {
 		}
 	};
 
+	const handleApplyAllChanges = async () => {
+		const token = localStorage.getItem('token');
+		const updates = Object.keys(editedDevices).map(id => {
+			const editedDevice = editedDevices[id];
+			const device = devices.find(device => device.id === id);
+
+			return {
+				id,
+				updatedDevice: {
+					manufacturer: editedDevice?.manufacturer || device.manufacturer,
+					model: editedDevice?.model || device.model,
+					internal_name: editedDevice?.internal_name || device.internal_name,
+					pid: editedDevice?.pid || device.pid,
+					barcode: editedDevice?.barcode || device.barcode,
+					ip_address: editedDevice?.ip_address || device.ip_address,
+					reservation: editedDevice?.reservation || device.reservation,
+					location: editedDevice?.location || device.location,
+					present_in_lab: editedDevice?.present_in_lab ?? device.present_in_lab
+				}
+			};
+		});
+
+		try {
+			await Promise.all(updates.map(({id, updatedDevice}) =>
+				axios.put(`http://localhost:5001/devices/${id}`, updatedDevice, {
+					headers: {Authorization: token},
+				})
+			));
+			fetchDevices();
+			setEditedDevices({});
+		} catch (error) {
+			console.error('Failed to apply changes', error);
+		}
+	};
+
 	return (
 		<div className="container">
 			<button className="logout-button" onClick={handleLogout}>Logout</button>
@@ -188,7 +226,8 @@ const Home = () => {
 				/>
 			</div>
 			{role === 'admin' && isAnySelected &&
-				<button className="delete-button" onClick={handleMassDelete}>Delete Selected</button>}
+				<button className="apply-button" onClick={handleApplyAllChanges}>Apply All Changes</button>}
+			{role === 'admin' && <button className="delete-button" onClick={handleMassDelete}>Delete Selected</button>}
 			<table>
 				<thead>
 				<tr>
@@ -368,9 +407,8 @@ const Home = () => {
 									value={device.reservation}
 									onChange={(e) => handleReserve(device.id, e.target.value)}
 								>
-									{users.map(user => (
-										<option key={user.id} value={user.username}>{user.username}</option>
-									))}
+									<option value=""></option>
+									<option value={username}>{username}</option>
 								</select>
 							) : (
 								<input
@@ -395,7 +433,7 @@ const Home = () => {
 						<td>{device.present_in_lab ? 'Yes' : 'No'}</td>
 						{role === 'admin' && (
 							<td>
-								<button onClick={() => handleApplyChanges(device.id)}>Apply</button>
+								{/*<button onClick={() => handleApplyChanges(device.id)}>Apply</button>*/}
 								<button className="delete-button" onClick={() => handleDelete(device.id)}>Delete
 								</button>
 							</td>

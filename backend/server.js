@@ -117,39 +117,39 @@ app.get('/users', authenticateToken, async (req, res) => {
 });
 
 app.put('/devices/:id', authenticateToken, async (req, res) => {
-  const { id } = req.params;
-  const {
-    manufacturer,
-    model,
-    internal_name,
-    pid,
-    barcode,
-    ip_address,
-    reservation,
-    location,
-    present_in_lab
-  } = req.body;
+	const {id} = req.params;
+	const {
+		manufacturer,
+		model,
+		internal_name,
+		pid,
+		barcode,
+		ip_address,
+		reservation,
+		location,
+		present_in_lab
+	} = req.body;
 
-  // Ensure all fields are provided, using default values if necessary
-  const result = await pool.query(
-    `UPDATE devices SET 
-      manufacturer = COALESCE($1, manufacturer), 
-      model = COALESCE($2, model), 
-      internal_name = COALESCE($3, internal_name), 
-      pid = COALESCE($4, pid), 
-      barcode = COALESCE($5, barcode), 
-      ip_address = COALESCE($6, ip_address), 
-      reservation = COALESCE($7, reservation), 
-      location = COALESCE($8, location), 
-      present_in_lab = COALESCE($9, present_in_lab) 
-    WHERE id = $10 RETURNING *`,
-    [manufacturer, model, internal_name, pid, barcode, ip_address, reservation, location, present_in_lab, id]
-  );
+	// Ensure all fields are provided, using default values if necessary
+	const result = await pool.query(
+		`UPDATE devices
+         SET manufacturer   = COALESCE($1, manufacturer),
+             model          = COALESCE($2, model),
+             internal_name  = COALESCE($3, internal_name),
+             pid            = COALESCE($4, pid),
+             barcode        = COALESCE($5, barcode),
+             ip_address     = COALESCE($6, ip_address),
+             reservation    = COALESCE($7, reservation),
+             location       = COALESCE($8, location),
+             present_in_lab = COALESCE($9, present_in_lab)
+         WHERE id = $10 RETURNING *`,
+		[manufacturer, model, internal_name, pid, barcode, ip_address, reservation, location, present_in_lab, id]
+	);
 
-  if (result.rows.length === 0) {
-    return res.sendStatus(404);
-  }
-  res.json(result.rows[0]);
+	if (result.rows.length === 0) {
+		return res.sendStatus(404);
+	}
+	res.json(result.rows[0]);
 });
 
 // Update reservation endpoint to set reservation_date
@@ -163,6 +163,47 @@ app.put('/devices/:id/reserve', authenticateToken, async (req, res) => {
 	res.json(result.rows[0]);
 });
 
+// Bulk update devices
+app.put('/devices/bulk-update', authenticateToken, async (req, res) => {
+	const updates = req.body.updates;
+
+	try {
+		const updatePromises = updates.map(({id, updatedDevice}) =>
+			pool.query(
+				`UPDATE devices
+                 SET manufacturer   = COALESCE($1, manufacturer),
+                     model          = COALESCE($2, model),
+                     internal_name  = COALESCE($3, internal_name),
+                     pid            = COALESCE($4, pid),
+                     barcode        = COALESCE($5, barcode),
+                     ip_address     = COALESCE($6, ip_address),
+                     reservation    = COALESCE($7, reservation),
+                     location       = COALESCE($8, location),
+                     present_in_lab = COALESCE($9, present_in_lab)
+                 WHERE id = $10 RETURNING *`,
+				[
+					updatedDevice.manufacturer,
+					updatedDevice.model,
+					updatedDevice.internal_name,
+					updatedDevice.pid,
+					updatedDevice.barcode,
+					updatedDevice.ip_address,
+					updatedDevice.reservation,
+					updatedDevice.location,
+					updatedDevice.present_in_lab,
+					id
+				]
+			)
+		);
+
+		await Promise.all(updatePromises);
+		res.status(200).json({message: 'Devices updated successfully'});
+	} catch (error) {
+		res.status(500).json({message: 'Failed to update devices', error});
+	}
+});
+
+
 // Mass delete devices
 app.post('/devices/mass-delete', authenticateToken, async (req, res) => {
 	const {ids} = req.body;
@@ -171,7 +212,7 @@ app.post('/devices/mass-delete', authenticateToken, async (req, res) => {
 });
 
 app.delete('/devices/:id', authenticateToken, async (req, res) => {
-	const { id } = req.params;
+	const {id} = req.params;
 	const result = await pool.query('DELETE FROM devices WHERE id = $1 RETURNING *', [id]);
 	if (result.rowCount === 0) {
 		return res.sendStatus(404);
