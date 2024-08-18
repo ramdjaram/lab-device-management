@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import {useNavigate} from 'react-router-dom';
 import '../styles/Home.css';
+import moment from 'moment-timezone';
 
 const Home = () => {
 	const [devices, setDevices] = useState([]);
@@ -447,7 +448,7 @@ const Home = () => {
 								device.location
 							)}
 						</td>
-						<td>{device.reservation_date}</td>
+						<td>{moment(device.reservation_date).tz('Europe/Berlin').format('DD-MM-YYYY HH:mm:ss')}</td>
 						<td>{device.present_in_lab ? 'Yes' : 'No'}</td>
 						{role === 'admin' && (
 							<td>

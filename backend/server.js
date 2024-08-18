@@ -4,6 +4,7 @@ const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const {Pool} = require('pg');
+const moment = require('moment-timezone');
 require('dotenv').config();
 
 const app = express();
@@ -154,13 +155,15 @@ app.put('/devices/:id', authenticateToken, async (req, res) => {
 
 // Update reservation endpoint to set reservation_date
 app.put('/devices/:id/reserve', authenticateToken, async (req, res) => {
-	const {id} = req.params;
-	const {reservation} = req.body;
-	const result = await pool.query(
-		'UPDATE devices SET reservation = $1, reservation_date = NOW() WHERE id = $2 RETURNING *',
-		[reservation, id]
-	);
-	res.json(result.rows[0]);
+  const { id } = req.params;
+  const { reservation } = req.body;
+  const result = await pool.query(
+    'UPDATE devices SET reservation = $1, reservation_date = NOW() WHERE id = $2 RETURNING *',
+    [reservation, id]
+  );
+  const updatedDevice = result.rows[0];
+  updatedDevice.reservation_date = moment(updatedDevice.reservation_date).tz('Europe/Berlin').format('DD-MM-YYYY HH:mm:ss');
+  res.json(updatedDevice);
 });
 
 // Bulk update devices
