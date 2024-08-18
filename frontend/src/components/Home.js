@@ -421,7 +421,13 @@ const Home = () => {
 						</td>
 						<td className={editedDevices[device.id]?.reservation ? 'modified-cell' : ''}>
 							{role === 'user' ? (
-								device.reservation
+								<select
+									value={device.reservation}
+									onChange={(e) => handleReserve(device.id, e.target.value)}
+								>
+									<option value=""></option>
+									<option value={username}>{username}</option>
+								</select>
 							) : (
 								<input
 									type="text"
