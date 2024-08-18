@@ -6,7 +6,7 @@ import '../styles/Home.css';
 const Home = () => {
 	const [devices, setDevices] = useState([]);
 	const [role, setRole] = useState('');
-	const [username, setUsername] = useState(''); // Define username state
+	const [username, setUsername] = useState('');
 	const [search, setSearch] = useState('');
 	const [users, setUsers] = useState([]);
 	const [selectedDevices, setSelectedDevices] = useState([]);
@@ -14,6 +14,7 @@ const Home = () => {
 	const [editedDevices, setEditedDevices] = useState({});
 	const [deviceCount, setDeviceCount] = useState(0);
 	const [isAnySelected, setIsAnySelected] = useState(false);
+	const [isAnyChanged, setIsAnyChanged] = useState(false);
 	const [newDevice, setNewDevice] = useState({});
 	const navigate = useNavigate();
 
@@ -34,7 +35,7 @@ const Home = () => {
 				headers: {Authorization: token},
 			});
 			setRole(response.data.role);
-			setUsername(response.data.username); // Set username
+			setUsername(response.data.username);
 		};
 
 		const fetchUsers = async () => {
@@ -66,6 +67,10 @@ const Home = () => {
 		setIsAnySelected(selectedDevices.length > 0);
 	}, [selectedDevices]);
 
+	useEffect(() => {
+		setIsAnyChanged(Object.keys(editedDevices).length > 0);
+	}, [editedDevices]);
+
 	const handleSearchChange = (e) => {
 		setSearch(e.target.value);
 	};
@@ -79,13 +84,23 @@ const Home = () => {
 	};
 
 	const handleEditChange = (id, field, value) => {
-		setEditedDevices(prevState => ({
-			...prevState,
-			[id]: {
-				...prevState[id],
-				[field]: value
+		setEditedDevices(prevState => {
+			const originalValue = devices.find(device => device.id === id)[field];
+			const newState = {
+				...prevState,
+				[id]: {
+					...prevState[id],
+					[field]: value
+				}
+			};
+			if (value === originalValue) {
+				delete newState[id][field];
+				if (Object.keys(newState[id]).length === 0) {
+					delete newState[id];
+				}
 			}
-		}));
+			return newState;
+		});
 	};
 
 	const handleApplyChanges = async (id) => {
@@ -225,9 +240,12 @@ const Home = () => {
 					onChange={handleSearchChange}
 				/>
 			</div>
-			{role === 'admin' && isAnySelected &&
-				<button className="apply-button" onClick={handleApplyAllChanges}>Apply All Changes</button>}
-			{role === 'admin' && <button className="delete-button" onClick={handleMassDelete}>Delete Selected</button>}
+			{role === 'admin' && isAnySelected && (
+				<button className="delete-button" onClick={handleMassDelete}>Delete Selected</button>
+			)}
+			{role === 'admin' && isAnyChanged && (
+				<button className="apply-button" onClick={handleApplyAllChanges}>Apply All Changes</button>
+			)}
 			<table>
 				<thead>
 				<tr>
@@ -335,7 +353,7 @@ const Home = () => {
 								onChange={() => handleCheckboxChange(device.id)}
 							/>
 						</td>}
-						<td>
+						<td className={editedDevices[device.id]?.manufacturer ? 'modified-cell' : ''}>
 							{role === 'admin' ? (
 								<input
 									type="text"
@@ -346,7 +364,7 @@ const Home = () => {
 								device.manufacturer
 							)}
 						</td>
-						<td>
+						<td className={editedDevices[device.id]?.model ? 'modified-cell' : ''}>
 							{role === 'admin' ? (
 								<input
 									type="text"
@@ -357,7 +375,7 @@ const Home = () => {
 								device.model
 							)}
 						</td>
-						<td>
+						<td className={editedDevices[device.id]?.internal_name ? 'modified-cell' : ''}>
 							{role === 'admin' ? (
 								<input
 									type="text"
@@ -368,7 +386,7 @@ const Home = () => {
 								device.internal_name
 							)}
 						</td>
-						<td>
+						<td className={editedDevices[device.id]?.pid ? 'modified-cell' : ''}>
 							{role === 'admin' ? (
 								<input
 									type="text"
@@ -379,7 +397,7 @@ const Home = () => {
 								device.pid
 							)}
 						</td>
-						<td>
+						<td className={editedDevices[device.id]?.barcode ? 'modified-cell' : ''}>
 							{role === 'admin' ? (
 								<input
 									type="text"
@@ -390,7 +408,7 @@ const Home = () => {
 								device.barcode
 							)}
 						</td>
-						<td>
+						<td className={editedDevices[device.id]?.ip_address ? 'modified-cell' : ''}>
 							{role === 'admin' ? (
 								<input
 									type="text"
@@ -401,15 +419,9 @@ const Home = () => {
 								device.ip_address
 							)}
 						</td>
-						<td>
+						<td className={editedDevices[device.id]?.reservation ? 'modified-cell' : ''}>
 							{role === 'user' ? (
-								<select
-									value={device.reservation}
-									onChange={(e) => handleReserve(device.id, e.target.value)}
-								>
-									<option value=""></option>
-									<option value={username}>{username}</option>
-								</select>
+								device.reservation
 							) : (
 								<input
 									type="text"
@@ -418,7 +430,7 @@ const Home = () => {
 								/>
 							)}
 						</td>
-						<td>
+						<td className={editedDevices[device.id]?.location ? 'modified-cell' : ''}>
 							{role === 'admin' ? (
 								<input
 									type="text"
@@ -433,9 +445,7 @@ const Home = () => {
 						<td>{device.present_in_lab ? 'Yes' : 'No'}</td>
 						{role === 'admin' && (
 							<td>
-								{/*<button onClick={() => handleApplyChanges(device.id)}>Apply</button>*/}
-								<button className="delete-button" onClick={() => handleDelete(device.id)}>Delete
-								</button>
+								<button onClick={() => handleDelete(device.id)}>Delete</button>
 							</td>
 						)}
 					</tr>
