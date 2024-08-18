@@ -452,7 +452,8 @@ const Home = () => {
 						<td>{device.present_in_lab ? 'Yes' : 'No'}</td>
 						{role === 'admin' && (
 							<td>
-								<button onClick={() => handleDelete(device.id)}>Delete</button>
+								<button className={"delete-button"} onClick={() => handleDelete(device.id)}>Delete
+								</button>
 							</td>
 						)}
 					</tr>
