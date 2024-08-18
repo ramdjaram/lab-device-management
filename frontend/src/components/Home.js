@@ -17,6 +17,7 @@ const Home = () => {
 	const [isAnySelected, setIsAnySelected] = useState(false);
 	const [isAnyChanged, setIsAnyChanged] = useState(false);
 	const [newDevice, setNewDevice] = useState({});
+	const [sortOrder, setSortOrder] = useState('asc'); // New state for sort order
 	const navigate = useNavigate();
 
 	const fetchDevices = async () => {
@@ -229,6 +230,16 @@ const Home = () => {
 		}
 	};
 
+	const handleSortByDate = () => {
+		const sortedDevices = [...filteredDevices].sort((a, b) => {
+			const dateA = new Date(a.reservation_date);
+			const dateB = new Date(b.reservation_date);
+			return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+		});
+		setFilteredDevices(sortedDevices);
+		setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+	};
+
 	return (
 		<div className="container">
 			<button className="logout-button" onClick={handleLogout}>Logout</button>
@@ -259,7 +270,7 @@ const Home = () => {
 					<th>IP Address</th>
 					<th>Reservation</th>
 					<th>Location</th>
-					<th>Reservation Date</th>
+					<th onClick={handleSortByDate} style={{cursor: 'pointer'}}>Reservation Date</th>
 					<th>Present In Lab</th>
 					{role === 'admin' && <th>Actions</th>}
 				</tr>

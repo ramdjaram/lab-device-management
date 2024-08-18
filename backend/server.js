@@ -90,7 +90,7 @@ app.post('/devices', authenticateToken, async (req, res) => {
 });
 
 app.get('/devices', authenticateToken, async (req, res) => {
-	const {barcode, model, reservation} = req.query;
+	const { barcode, model, reservation } = req.query;
 	let query = 'SELECT * FROM devices';
 	const params = [];
 
@@ -106,6 +106,8 @@ app.get('/devices', authenticateToken, async (req, res) => {
 		query += params.length ? ' AND reservation = $3' : ' WHERE reservation = $1';
 		params.push(reservation);
 	}
+
+	query += ' ORDER BY reservation_date DESC';
 
 	const result = await pool.query(query, params);
 	res.json(result.rows);
