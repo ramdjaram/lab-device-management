@@ -15,7 +15,7 @@ CREATE TABLE devices
     pid              VARCHAR(100),
     barcode          VARCHAR(100),
     ip_address       VARCHAR(100),
-    reservation      BOOLEAN,
+    reservation      varchar(100),
     location         VARCHAR(100),
     reservation_date TIMESTAMP,
     present_in_lab   BOOLEAN,
