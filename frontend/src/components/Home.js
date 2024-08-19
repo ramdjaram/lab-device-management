@@ -91,6 +91,7 @@ const Home = () => {
 			const newState = {
 				...prevState,
 				[id]: {
+					id: id,
 					...prevState[id],
 					[field]: value
 				}
@@ -132,6 +133,40 @@ const Home = () => {
 				delete newState[id];
 				return newState;
 			});
+		} catch (error) {
+			console.error('Failed to apply changes', error);
+		}
+	};
+
+	const handleApplyAllChanges = async () => {
+		const token = localStorage.getItem('token');
+		const updates = Object.keys(editedDevices).map(id => {
+			const editedDevice = editedDevices[id];
+			const device = devices.find(device => device.id === parseInt(id));
+			return {
+				id,
+				updatedDevice: {
+					manufacturer: editedDevice?.manufacturer || device.manufacturer,
+					model: editedDevice?.model || device.model,
+					internal_name: editedDevice?.internal_name || device.internal_name,
+					pid: editedDevice?.pid || device.pid,
+					barcode: editedDevice?.barcode || device.barcode,
+					ip_address: editedDevice?.ip_address || device.ip_address,
+					reservation: editedDevice?.reservation || device.reservation,
+					location: editedDevice?.location || device.location,
+					present_in_lab: editedDevice?.present_in_lab ?? device.present_in_lab
+				}
+			};
+		});
+
+		try {
+			await Promise.all(updates.map(({id, updatedDevice}) =>
+				axios.put(`http://localhost:5001/devices/${id}`, updatedDevice, {
+					headers: {Authorization: token},
+				})
+			));
+			fetchDevices();
+			setEditedDevices({});
 		} catch (error) {
 			console.error('Failed to apply changes', error);
 		}
@@ -192,41 +227,6 @@ const Home = () => {
 			setNewDevice({});
 		} catch (error) {
 			console.error('Failed to add device', error);
-		}
-	};
-
-	const handleApplyAllChanges = async () => {
-		const token = localStorage.getItem('token');
-		const updates = Object.keys(editedDevices).map(id => {
-			const editedDevice = editedDevices[id];
-			const device = devices.find(device => device.id === id);
-
-			return {
-				id,
-				updatedDevice: {
-					manufacturer: editedDevice?.manufacturer || device.manufacturer,
-					model: editedDevice?.model || device.model,
-					internal_name: editedDevice?.internal_name || device.internal_name,
-					pid: editedDevice?.pid || device.pid,
-					barcode: editedDevice?.barcode || device.barcode,
-					ip_address: editedDevice?.ip_address || device.ip_address,
-					reservation: editedDevice?.reservation || device.reservation,
-					location: editedDevice?.location || device.location,
-					present_in_lab: editedDevice?.present_in_lab ?? device.present_in_lab
-				}
-			};
-		});
-
-		try {
-			await Promise.all(updates.map(({id, updatedDevice}) =>
-				axios.put(`http://localhost:5001/devices/${id}`, updatedDevice, {
-					headers: {Authorization: token},
-				})
-			));
-			fetchDevices();
-			setEditedDevices({});
-		} catch (error) {
-			console.error('Failed to apply changes', error);
 		}
 	};
 
