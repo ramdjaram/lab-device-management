@@ -120,7 +120,8 @@ const Home = () => {
 			ip_address: editedDevice?.ip_address || device.ip_address,
 			reservation: editedDevice?.reservation || device.reservation,
 			location: editedDevice?.location || device.location,
-			present_in_lab: editedDevice?.present_in_lab ?? device.present_in_lab
+			present_in_lab: editedDevice?.present_in_lab ?? device.present_in_lab,
+			status: editedDevice?.status || device.status
 		};
 
 		try {
@@ -154,7 +155,8 @@ const Home = () => {
 					ip_address: editedDevice?.ip_address || device.ip_address,
 					reservation: editedDevice?.reservation || device.reservation,
 					location: editedDevice?.location || device.location,
-					present_in_lab: editedDevice?.present_in_lab ?? device.present_in_lab
+					present_in_lab: editedDevice?.present_in_lab ?? device.present_in_lab,
+					status: editedDevice?.status || device.status
 				}
 			};
 		});
@@ -237,7 +239,8 @@ const Home = () => {
 			reservation: newDevice.reservation,
 			location: newDevice.location || 'BgLab',
 			reservation_date: newDevice.reservation_date || '1970-01-01',
-			present_in_lab: newDevice.present_in_lab !== undefined ? newDevice.present_in_lab : true
+			present_in_lab: newDevice.present_in_lab !== undefined ? newDevice.present_in_lab : true,
+			status: newDevice.status || ''
 		};
 
 		try {
@@ -293,6 +296,7 @@ const Home = () => {
 					<th>Location</th>
 					<th onClick={handleSortByDate} style={{cursor: 'pointer'}}>Reservation Date</th>
 					<th>Present In Lab</th>
+					<th>Status</th>
 					{role === 'admin' && <th>Actions</th>}
 				</tr>
 				</thead>
@@ -371,6 +375,13 @@ const Home = () => {
 								<option value="true">Yes</option>
 								<option value="false">No</option>
 							</select>
+						</td>
+						<td>
+							<input
+								type="text"
+								value={newDevice.status || ''}
+								onChange={(e) => handleNewDeviceChange('status', e.target.value)}
+							/>
 						</td>
 						<td colSpan={role === 'admin' ? 12 : 11}>
 							<button onClick={handleAddDevice}>Add Device</button>
@@ -479,6 +490,13 @@ const Home = () => {
 						</td>
 						<td>{moment(device.reservation_date).tz('Europe/Berlin').format('DD-MM-YYYY HH:mm:ss')}</td>
 						<td>{device.present_in_lab ? 'Yes' : 'No'}</td>
+						<td>
+							<input
+								type="text"
+								value={editedDevices[device.id]?.status || device.status}
+								onChange={(e) => handleEditChange(device.id, 'status', e.target.value)}
+							/>
+						</td>
 						{role === 'admin' && (
 							<td>
 								<button className={"delete-button"} onClick={() => handleDelete(device.id)}>Delete

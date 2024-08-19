@@ -68,7 +68,6 @@ app.get('/admin', authenticateToken, async (req, res) => {
 	res.json(result.rows[0]);
 });
 
-// Device routes
 app.post('/devices', authenticateToken, async (req, res) => {
 	const {
 		manufacturer = '',
@@ -80,7 +79,8 @@ app.post('/devices', authenticateToken, async (req, res) => {
 		reservation,
 		location = 'BgLab',
 		reservation_date = '1970-01-01',
-		present_in_lab = true
+		present_in_lab = true,
+		status = ''
 	} = req.body;
 
 	// Validation for mandatory fields
@@ -89,8 +89,8 @@ app.post('/devices', authenticateToken, async (req, res) => {
 	}
 
 	const result = await pool.query(
-		'INSERT INTO devices (manufacturer, model, internal_name, pid, barcode, ip_address, reservation, location, reservation_date, present_in_lab, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *',
-		[manufacturer, model, internal_name, pid, barcode, ip_address, reservation, location, reservation_date, present_in_lab, req.user.id]
+		'INSERT INTO devices (manufacturer, model, internal_name, pid, barcode, ip_address, reservation, location, reservation_date, present_in_lab, status, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *',
+		[manufacturer, model, internal_name, pid, barcode, ip_address, reservation, location, reservation_date, present_in_lab, status, req.user.id]
 	);
 	res.json(result.rows[0]);
 });
@@ -136,10 +136,10 @@ app.put('/devices/:id', authenticateToken, async (req, res) => {
 		ip_address,
 		reservation,
 		location,
-		present_in_lab
+		present_in_lab,
+		status
 	} = req.body;
 
-	// Ensure all fields are provided, using default values if necessary
 	const result = await pool.query(
 		`UPDATE devices
          SET manufacturer   = COALESCE($1, manufacturer),
@@ -150,9 +150,10 @@ app.put('/devices/:id', authenticateToken, async (req, res) => {
              ip_address     = COALESCE($6, ip_address),
              reservation    = COALESCE($7, reservation),
              location       = COALESCE($8, location),
-             present_in_lab = COALESCE($9, present_in_lab)
-         WHERE id = $10 RETURNING *`,
-		[manufacturer, model, internal_name, pid, barcode, ip_address, reservation, location, present_in_lab, id]
+             present_in_lab = COALESCE($9, present_in_lab),
+             status         = COALESCE($10, status)
+         WHERE id = $11 RETURNING *`,
+		[manufacturer, model, internal_name, pid, barcode, ip_address, reservation, location, present_in_lab, status, id]
 	);
 
 	if (result.rows.length === 0) {

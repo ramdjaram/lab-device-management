@@ -19,5 +19,6 @@ CREATE TABLE devices
     location         VARCHAR(100),
     reservation_date TIMESTAMP,
     present_in_lab   BOOLEAN,
+    status           VARCHAR(200),
     user_id          INTEGER REFERENCES users (id)
 );
