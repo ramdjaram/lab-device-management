@@ -71,17 +71,23 @@ app.get('/admin', authenticateToken, async (req, res) => {
 // Device routes
 app.post('/devices', authenticateToken, async (req, res) => {
 	const {
-		manufacturer,
+		manufacturer = '',
 		model,
-		internal_name,
-		pid,
+		internal_name = '',
+		pid = '',
 		barcode,
-		ip_address,
+		ip_address = '',
 		reservation,
-		location,
-		reservation_date,
-		present_in_lab
+		location = 'BgLab',
+		reservation_date = '1970-01-01',
+		present_in_lab = true
 	} = req.body;
+
+	// Validation for mandatory fields
+	if (!model || !barcode || !reservation) {
+		return res.status(400).json({message: 'Model, Barcode, and Reservation are required fields.'});
+	}
+
 	const result = await pool.query(
 		'INSERT INTO devices (manufacturer, model, internal_name, pid, barcode, ip_address, reservation, location, reservation_date, present_in_lab, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *',
 		[manufacturer, model, internal_name, pid, barcode, ip_address, reservation, location, reservation_date, present_in_lab, req.user.id]
@@ -90,7 +96,7 @@ app.post('/devices', authenticateToken, async (req, res) => {
 });
 
 app.get('/devices', authenticateToken, async (req, res) => {
-	const { barcode, model, reservation } = req.query;
+	const {barcode, model, reservation} = req.query;
 	let query = 'SELECT * FROM devices';
 	const params = [];
 
@@ -157,15 +163,15 @@ app.put('/devices/:id', authenticateToken, async (req, res) => {
 
 // Update reservation endpoint to set reservation_date
 app.put('/devices/:id/reserve', authenticateToken, async (req, res) => {
-  const { id } = req.params;
-  const { reservation } = req.body;
-  const result = await pool.query(
-    'UPDATE devices SET reservation = $1, reservation_date = NOW() WHERE id = $2 RETURNING *',
-    [reservation, id]
-  );
-  const updatedDevice = result.rows[0];
-  updatedDevice.reservation_date = moment(updatedDevice.reservation_date).tz('Europe/Berlin').format('DD-MM-YYYY HH:mm:ss');
-  res.json(updatedDevice);
+	const {id} = req.params;
+	const {reservation} = req.body;
+	const result = await pool.query(
+		'UPDATE devices SET reservation = $1, reservation_date = NOW() WHERE id = $2 RETURNING *',
+		[reservation, id]
+	);
+	const updatedDevice = result.rows[0];
+	updatedDevice.reservation_date = moment(updatedDevice.reservation_date).tz('Europe/Berlin').format('DD-MM-YYYY HH:mm:ss');
+	res.json(updatedDevice);
 });
 
 // Bulk update devices

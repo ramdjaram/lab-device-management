@@ -219,8 +219,29 @@ const Home = () => {
 
 	const handleAddDevice = async () => {
 		const token = localStorage.getItem('token');
+
+		// Validation for mandatory fields
+		if (!newDevice.model || !newDevice.barcode || !newDevice.reservation) {
+			alert('Model, Barcode, and Reservation are required fields.');
+			return;
+		}
+
+		// Set default values for other fields
+		const deviceToAdd = {
+			manufacturer: newDevice.manufacturer || '',
+			model: newDevice.model,
+			internal_name: newDevice.internal_name || '',
+			pid: newDevice.pid || '',
+			barcode: newDevice.barcode,
+			ip_address: newDevice.ip_address || '',
+			reservation: newDevice.reservation,
+			location: newDevice.location || 'BgLab',
+			reservation_date: newDevice.reservation_date || '1970-01-01',
+			present_in_lab: newDevice.present_in_lab !== undefined ? newDevice.present_in_lab : true
+		};
+
 		try {
-			await axios.post('http://localhost:5001/devices', newDevice, {
+			await axios.post(`http://localhost:5001/devices`, deviceToAdd, {
 				headers: {Authorization: token},
 			});
 			fetchDevices();
@@ -277,7 +298,7 @@ const Home = () => {
 				</thead>
 				<tbody>
 				{role === 'admin' && (
-					<tr style={{'background-color': '#4caf50'}}>
+					<tr style={{'backgroundcolor': '#4caf50'}}>
 						<td></td>
 						<td>
 							<input
