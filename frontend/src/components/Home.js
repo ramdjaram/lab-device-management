@@ -255,7 +255,7 @@ const Home = () => {
 			{role === 'admin' && isAnySelected && (
 				<button className="delete-button" onClick={handleMassDelete}>Delete Selected</button>
 			)}
-			{role === 'admin' && isAnyChanged && (
+			{isAnyChanged && (
 				<button className="apply-button" onClick={handleApplyAllChanges}>Apply All Changes</button>
 			)}
 			<table>
@@ -450,15 +450,11 @@ const Home = () => {
 							)}
 						</td>
 						<td className={editedDevices[device.id]?.location ? 'modified-cell' : ''}>
-							{role === 'admin' ? (
-								<input
-									type="text"
-									value={editedDevices[device.id]?.location || device.location}
-									onChange={(e) => handleEditChange(device.id, 'location', e.target.value)}
-								/>
-							) : (
-								device.location
-							)}
+							<input
+								type="text"
+								value={editedDevices[device.id]?.location || device.location}
+								onChange={(e) => handleEditChange(device.id, 'location', e.target.value)}
+							/>
 						</td>
 						<td>{moment(device.reservation_date).tz('Europe/Berlin').format('DD-MM-YYYY HH:mm:ss')}</td>
 						<td>{device.present_in_lab ? 'Yes' : 'No'}</td>
