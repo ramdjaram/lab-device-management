@@ -298,7 +298,7 @@ const Home = () => {
 				</thead>
 				<tbody>
 				{role === 'admin' && (
-					<tr style={{'backgroundcolor': '#4caf50'}}>
+					<tr style={{'backgroundColor': '#4caf50'}}>
 						<td></td>
 						<td>
 							<input
