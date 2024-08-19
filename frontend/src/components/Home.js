@@ -489,7 +489,15 @@ const Home = () => {
 							/>
 						</td>
 						<td>{moment(device.reservation_date).tz('Europe/Berlin').format('DD-MM-YYYY HH:mm:ss')}</td>
-						<td>{device.present_in_lab ? 'Yes' : 'No'}</td>
+						<td>
+							<select
+								value={device.present_in_lab ? 'true' : 'false'}
+								onChange={(e) => handleEditChange(device.id, 'present_in_lab', e.target.value === 'true')}
+							>
+								<option value="true">Yes</option>
+								<option value="false">No</option>
+							</select>
+						</td>
 						<td>
 							<input
 								type="text"
