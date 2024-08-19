@@ -437,7 +437,7 @@ const Home = () => {
 									value={device.reservation}
 									onChange={(e) => handleReserve(device.id, e.target.value)}
 								>
-									<option value="">{device.reservation}</option>
+									{device.reservation !== username && <option value="">{device.reservation}</option>}
 									{device.reservation === username && <option value=""></option>}
 									<option value={username}>{username}</option>
 								</select>
