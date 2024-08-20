@@ -8,6 +8,7 @@ const Register = () => {
 	const [password, setPassword] = useState('');
 	const [verifyPassword, setVerifyPassword] = useState('');
 	const [role, setRole] = useState('user');
+	const [isAdmin, setIsAdmin] = useState(false);
 	const navigate = useNavigate();
 
 	const handleSubmit = async (e) => {
@@ -18,6 +19,15 @@ const Register = () => {
 		}
 		await axios.post('http://localhost:5001/register', {username, password, role});
 		navigate('/login'); // Redirect to login page after successful registration
+	};
+
+	const handleRegisterClick = () => {
+		const adminPassword = prompt('Enter admin password to access admin registration:');
+		if (adminPassword === 'admin') {
+			setIsAdmin(true);
+		} else {
+			setIsAdmin(false);
+		}
 	};
 
 	return (
@@ -44,10 +54,11 @@ const Register = () => {
 				/>
 				<select value={role} onChange={(e) => setRole(e.target.value)}>
 					<option value="user">User</option>
-					<option value="admin">Admin</option>
+					{isAdmin && <option value="admin">Admin</option>}
 				</select>
 				<button type="submit">Register</button>
 			</form>
+			<button onClick={handleRegisterClick}>Elevate To Admin</button>
 		</div>
 	);
 };
