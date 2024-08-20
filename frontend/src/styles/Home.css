@@ -75,7 +75,6 @@ th {
 
 .td-mandatory {
     background-color: #e4f6d1;
-    color: white;
 }
 
 tr:nth-child(even) {
