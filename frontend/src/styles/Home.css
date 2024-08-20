@@ -68,6 +68,11 @@ th {
     color: white;
 }
 
+.th-mandatory {
+    background-color: #4c8f50;
+    color: white;
+}
+
 tr:nth-child(even) {
     background-color: #f9f9f9;
 }

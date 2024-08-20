@@ -304,12 +304,12 @@ const Home = () => {
 				<tr>
 					{role === 'admin' && <th>Select</th>}
 					<th>Manufacturer</th>
-					<th>Model</th>
+					<th className={'th-mandatory'}>Model</th>
 					<th>Internal Name</th>
 					<th>PID</th>
-					<th>Barcode</th>
+					<th className={'th-mandatory'}>Barcode</th>
 					<th>IP Address</th>
-					<th>Reservation</th>
+					<th className={'th-mandatory'}>Reservation</th>
 					<th>Location</th>
 					<th onClick={handleSortByDate} style={{cursor: 'pointer'}}>Reservation Date</th>
 					<th>Present In Lab</th>
@@ -328,7 +328,7 @@ const Home = () => {
 								onChange={(e) => handleNewDeviceChange('manufacturer', e.target.value)}
 							/>
 						</td>
-						<td>
+						<td className={'th-mandatory'}>
 							<input
 								type="text"
 								value={newDevice.model || ''}
@@ -349,7 +349,7 @@ const Home = () => {
 								onChange={(e) => handleNewDeviceChange('pid', e.target.value)}
 							/>
 						</td>
-						<td>
+						<td className={'th-mandatory'}>
 							<input
 								type="text"
 								value={newDevice.barcode || ''}
@@ -363,7 +363,7 @@ const Home = () => {
 								onChange={(e) => handleNewDeviceChange('ip_address', e.target.value)}
 							/>
 						</td>
-						<td>
+						<td className={'th-mandatory'}>
 							<input
 								type="text"
 								value={newDevice.reservation || ''}
