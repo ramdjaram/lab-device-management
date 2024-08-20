@@ -134,3 +134,7 @@ tr:hover {
 .modified-cell {
     background-color: #f69393;
 }
+
+::placeholder {
+    color: black;
+}

@@ -15,7 +15,8 @@ const DeviceRow = ({ device, role, username, selectedDevices, editedDevices, han
         {role === 'admin' ? (
           <input
             type="text"
-            value={editedDevices[device.id]?.manufacturer || device.manufacturer}
+            placeholder={device.manufacturer}
+            value={editedDevices[device.id]?.manufacturer || ''}
             onChange={(e) => handleEditChange(device.id, 'manufacturer', e.target.value)}
           />
         ) : (
@@ -26,7 +27,8 @@ const DeviceRow = ({ device, role, username, selectedDevices, editedDevices, han
         {role === 'admin' ? (
           <input
             type="text"
-            value={editedDevices[device.id]?.model || device.model}
+            placeholder={device.model}
+            value={editedDevices[device.id]?.model || ''}
             onChange={(e) => handleEditChange(device.id, 'model', e.target.value)}
           />
         ) : (
@@ -37,7 +39,8 @@ const DeviceRow = ({ device, role, username, selectedDevices, editedDevices, han
         {role === 'admin' ? (
           <input
             type="text"
-            value={editedDevices[device.id]?.internal_name || device.internal_name}
+            placeholder={device.internal_name}
+            value={editedDevices[device.id]?.internal_name || ''}
             onChange={(e) => handleEditChange(device.id, 'internal_name', e.target.value)}
           />
         ) : (
@@ -48,7 +51,8 @@ const DeviceRow = ({ device, role, username, selectedDevices, editedDevices, han
         {role === 'admin' ? (
           <input
             type="text"
-            value={editedDevices[device.id]?.pid || device.pid}
+            placeholder={device.pid}
+            value={editedDevices[device.id]?.pid || ''}
             onChange={(e) => handleEditChange(device.id, 'pid', e.target.value)}
           />
         ) : (
@@ -59,7 +63,8 @@ const DeviceRow = ({ device, role, username, selectedDevices, editedDevices, han
         {role === 'admin' ? (
           <input
             type="text"
-            value={editedDevices[device.id]?.barcode || device.barcode}
+            placeholder={device.barcode}
+            value={editedDevices[device.id]?.barcode || ''}
             onChange={(e) => handleEditChange(device.id, 'barcode', e.target.value)}
           />
         ) : (
@@ -70,7 +75,8 @@ const DeviceRow = ({ device, role, username, selectedDevices, editedDevices, han
         {role === 'admin' ? (
           <input
             type="text"
-            value={editedDevices[device.id]?.ip_address || device.ip_address}
+            placeholder={device.ip_address}
+            value={editedDevices[device.id]?.ip_address || ''}
             onChange={(e) => handleEditChange(device.id, 'ip_address', e.target.value)}
           />
         ) : (
@@ -98,7 +104,8 @@ const DeviceRow = ({ device, role, username, selectedDevices, editedDevices, han
       <td className={editedDevices[device.id]?.location ? 'modified-cell' : ''}>
         <input
           type="text"
-          value={editedDevices[device.id]?.location || device.location}
+          placeholder={device.location}
+          value={editedDevices[device.id]?.location || ''}
           onChange={(e) => handleEditChange(device.id, 'location', e.target.value)}
         />
       </td>
@@ -115,7 +122,8 @@ const DeviceRow = ({ device, role, username, selectedDevices, editedDevices, han
       <td className={editedDevices[device.id]?.status ? 'modified-cell' : ''}>
         <input
           type="text"
-          value={editedDevices[device.id]?.status || device.status}
+          placeholder={device.status}
+          value={editedDevices[device.id]?.status || ''}
           onChange={(e) => handleEditChange(device.id, 'status', e.target.value)}
         />
       </td>

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Home.css';
-import moment from 'moment-timezone';
 import Header from './Header';
 import DeviceRow from './DeviceRow';
 import AddDeviceForm from './AddDeviceForm';
@@ -117,12 +116,12 @@ const Home = () => {
           [field]: value
         }
       };
-      if (value === originalValue) {
-        delete newState[id][field];
-        if (Object.keys(newState[id]).length === 0) {
-          delete newState[id];
-        }
-      }
+      // if (value === originalValue) {
+      //   delete newState[id][field];
+      //   if (Object.keys(newState[id]).length === 0) {
+      //     delete newState[id];
+      //   }
+      // } // Commented out to allow matching the placeholder value
       return newState;
     });
   };
