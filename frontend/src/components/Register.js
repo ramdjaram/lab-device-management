@@ -24,8 +24,10 @@ const Register = () => {
 	const handleRegisterClick = () => {
 		const adminPassword = prompt('Enter admin password to access admin registration:');
 		if (adminPassword === 'admin') {
+			setRole('admin');
 			setIsAdmin(true);
 		} else {
+			setRole('user');
 			setIsAdmin(false);
 		}
 	};
@@ -52,13 +54,22 @@ const Register = () => {
 					onChange={(e) => setVerifyPassword(e.target.value)}
 					placeholder="Verify Password"
 				/>
-				<select value={role} onChange={(e) => setRole(e.target.value)}>
-					<option value="user">User</option>
-					{isAdmin && <option value="admin">Admin</option>}
-				</select>
+				{/*<select value={role} onChange={(e) => setRole(e.target.value)}>*/}
+				{/*	<option value="user">User</option>*/}
+				{/*	{isAdmin && <option value="admin">Admin</option>}*/}
+				{/*</select>*/}
 				<button type="submit">Register</button>
 			</form>
-			<button onClick={handleRegisterClick}>Elevate To Admin</button>
+			<div>
+				<label>
+					<input
+						type="checkbox"
+						checked={isAdmin}
+						onChange={handleRegisterClick}
+					/>
+					as Admin
+				</label>
+			</div>
 		</div>
 	);
 };
