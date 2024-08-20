@@ -29,6 +29,23 @@ const Home = () => {
 		setDeviceCount(response.data.length);
 	};
 
+	// Axios interceptor to handle 401 responses
+	useEffect(() => {
+		const interceptor = axios.interceptors.response.use(
+			response => response,
+			error => {
+				if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+					navigate('/login');
+				}
+				return Promise.reject(error);
+			}
+		);
+
+		return () => {
+			axios.interceptors.response.eject(interceptor);
+		};
+	}, [navigate]);
+
 	useEffect(() => {
 		fetchDevices();
 		const fetchUserRole = async () => {
