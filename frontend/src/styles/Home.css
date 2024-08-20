@@ -73,6 +73,11 @@ th {
     color: white;
 }
 
+.td-mandatory {
+    background-color: #e4f6d1;
+    color: white;
+}
+
 tr:nth-child(even) {
     background-color: #f9f9f9;
 }
@@ -128,5 +133,5 @@ tr:hover {
 }
 
 .modified-cell {
-    background-color: #ffff99; /* Light yellow background */
+    background-color: #f69393;
 }

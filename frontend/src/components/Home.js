@@ -425,7 +425,7 @@ const Home = () => {
 								device.manufacturer
 							)}
 						</td>
-						<td className={editedDevices[device.id]?.model ? 'modified-cell' : ''}>
+						<td className={editedDevices[device.id]?.model ? 'modified-cell' : 'td-mandatory'}>
 							{role === 'admin' ? (
 								<input
 									type="text"
@@ -458,7 +458,7 @@ const Home = () => {
 								device.pid
 							)}
 						</td>
-						<td className={editedDevices[device.id]?.barcode ? 'modified-cell' : ''}>
+						<td className={editedDevices[device.id]?.barcode ? 'modified-cell' : 'td-mandatory'}>
 							{role === 'admin' ? (
 								<input
 									type="text"
@@ -480,7 +480,7 @@ const Home = () => {
 								device.ip_address
 							)}
 						</td>
-						<td className={editedDevices[device.id]?.reservation ? 'modified-cell' : ''}>
+						<td className={editedDevices[device.id]?.reservation ? 'modified-cell' : 'td-mandatory'}>
 							{role === 'user' ? (
 								<select
 									value={device.reservation}
@@ -515,7 +515,7 @@ const Home = () => {
 								<option value="false">No</option>
 							</select>
 						</td>
-						<td>
+						<td className={editedDevices[device.id]?.status ? 'modified-cell' : ''}>
 							<input
 								type="text"
 								value={editedDevices[device.id]?.status || device.status}
