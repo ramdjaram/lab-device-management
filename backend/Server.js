@@ -68,31 +68,10 @@ app.get('/admin', authenticateToken, async (req, res) => {
 	res.json(result.rows[0]);
 });
 
-app.post('/devices', authenticateToken, async (req, res) => {
-	const {
-		manufacturer = '',
-		model,
-		internal_name = '',
-		pid = '',
-		barcode,
-		ip_address = '',
-		reservation,
-		location = 'BgLab',
-		reservation_date = '1970-01-01',
-		present_in_lab = true,
-		status = ''
-	} = req.body;
-
-	// Validation for mandatory fields
-	if (!model || !barcode || !reservation) {
-		return res.status(400).json({message: 'Model, Barcode, and Reservation are required fields.'});
-	}
-
-	const result = await pool.query(
-		'INSERT INTO devices (manufacturer, model, internal_name, pid, barcode, ip_address, reservation, location, reservation_date, present_in_lab, status, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *',
-		[manufacturer, model, internal_name, pid, barcode, ip_address, reservation, location, reservation_date, present_in_lab, status, req.user.id]
-	);
-	res.json(result.rows[0]);
+// Fetch all users for the dropdown
+app.get('/users', authenticateToken, async (req, res) => {
+	const result = await pool.query('SELECT id, username FROM users');
+	res.json(result.rows);
 });
 
 app.get('/devices', authenticateToken, async (req, res) => {
@@ -119,10 +98,31 @@ app.get('/devices', authenticateToken, async (req, res) => {
 	res.json(result.rows);
 });
 
-// Fetch all users for the dropdown
-app.get('/users', authenticateToken, async (req, res) => {
-	const result = await pool.query('SELECT id, username FROM users');
-	res.json(result.rows);
+app.post('/devices', authenticateToken, async (req, res) => {
+	const {
+		manufacturer = '',
+		model,
+		internal_name = '',
+		pid = '',
+		barcode,
+		ip_address = '',
+		reservation,
+		location = 'BgLab',
+		reservation_date = '1970-01-01',
+		present_in_lab = true,
+		status = ''
+	} = req.body;
+
+	// Validation for mandatory fields
+	if (!model || !barcode || !reservation) {
+		return res.status(400).json({message: 'Model, Barcode, and Reservation are required fields.'});
+	}
+
+	const result = await pool.query(
+		'INSERT INTO devices (manufacturer, model, internal_name, pid, barcode, ip_address, reservation, location, reservation_date, present_in_lab, status, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *',
+		[manufacturer, model, internal_name, pid, barcode, ip_address, reservation, location, reservation_date, present_in_lab, status, req.user.id]
+	);
+	res.json(result.rows[0]);
 });
 
 app.put('/devices/:id', authenticateToken, async (req, res) => {
@@ -175,6 +175,24 @@ app.put('/devices/:id/reserve', authenticateToken, async (req, res) => {
 	res.json(updatedDevice);
 });
 
+// Mass delete devices
+app.post('/devices/mass-delete', authenticateToken, async (req, res) => {
+	const {ids} = req.body;
+	await pool.query('DELETE FROM devices WHERE id = ANY($1)', [ids]);
+	res.sendStatus(204);
+});
+
+// not used
+app.delete('/devices/:id', authenticateToken, async (req, res) => {
+	const {id} = req.params;
+	const result = await pool.query('DELETE FROM devices WHERE id = $1 RETURNING *', [id]);
+	if (result.rowCount === 0) {
+		return res.sendStatus(404);
+	}
+	res.sendStatus(204);
+});
+
+// not used
 // Bulk update devices
 app.put('/devices/bulk-update', authenticateToken, async (req, res) => {
 	const updates = req.body.updates;
@@ -213,23 +231,6 @@ app.put('/devices/bulk-update', authenticateToken, async (req, res) => {
 	} catch (error) {
 		res.status(500).json({message: 'Failed to update devices', error});
 	}
-});
-
-
-// Mass delete devices
-app.post('/devices/mass-delete', authenticateToken, async (req, res) => {
-	const {ids} = req.body;
-	await pool.query('DELETE FROM devices WHERE id = ANY($1)', [ids]);
-	res.sendStatus(204);
-});
-
-app.delete('/devices/:id', authenticateToken, async (req, res) => {
-	const {id} = req.params;
-	const result = await pool.query('DELETE FROM devices WHERE id = $1 RETURNING *', [id]);
-	if (result.rowCount === 0) {
-		return res.sendStatus(404);
-	}
-	res.sendStatus(204);
 });
 
 const PORT = process.env.PORT || 5000;
