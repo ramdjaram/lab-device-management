@@ -1,0 +1,14 @@
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Adjust the gap between elements as needed */
+}
+
+.search-bar input {
+    flex: 1; /* Allow the input to take up available space */
+}
+
+.search-bar .delete-button,
+.search-bar .apply-button {
+    flex-shrink: 0; /* Prevent buttons from shrinking */
+}

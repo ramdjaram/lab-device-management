@@ -6,6 +6,7 @@ import Header from './Header';
 import DeviceRow from './DeviceRow';
 import AddDeviceForm from './AddDeviceForm';
 import SearchBar from './SearchBar';
+import '../styles/SearchBar.css';
 
 const Home = () => {
 	const [devices, setDevices] = useState([]);
@@ -295,13 +296,14 @@ const Home = () => {
 	return (
 		<div className="container">
 			<Header deviceCount={deviceCount} handleLogout={handleLogout}/>
-			<SearchBar search={search} handleSearchChange={handleSearchChange}/>
-			{role === 'admin' && isAnySelected && (
-				<button className="delete-button" onClick={handleMassDelete}>Delete Selected</button>
-			)}
-			{isAnyChanged && (
-				<button className="apply-button" onClick={handleApplyAllChanges}>Apply All Changes</button>
-			)}
+			<SearchBar role={role}
+			           search={search}
+			           isAnyChanged={isAnyChanged}
+			           isAnySelected={isAnySelected}
+			           handleSearchChange={handleSearchChange}
+			           handleApplyAllChanges={handleApplyAllChanges}
+			/>
+
 			<table>
 				<thead>
 				<tr>
