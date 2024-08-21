@@ -20,7 +20,8 @@ const Home = () => {
   const [isAnySelected, setIsAnySelected] = useState(false);
   const [isAnyChanged, setIsAnyChanged] = useState(false);
   const [newDevice, setNewDevice] = useState({});
-  const [sortOrder, setSortOrder] = useState('asc'); // New state for sort order
+  const [sortOrder, setSortOrder] = useState('asc');
+  const [selectAll, setSelectAll] = useState(false);
   const navigate = useNavigate();
 
   const fetchDevices = async () => {
@@ -32,7 +33,6 @@ const Home = () => {
     setDeviceCount(response.data.length);
   };
 
-  // Axios interceptor to handle 401 responses
   useEffect(() => {
     const interceptor = axios.interceptors.response.use(
       response => response,
@@ -111,7 +111,6 @@ const Home = () => {
       const newState = {
         ...prevState,
         [id]: {
-          id: id,
           ...prevState[id],
           [field]: value
         }
@@ -227,6 +226,15 @@ const Home = () => {
     );
   };
 
+  const handleSelectAllChange = () => {
+    if (selectAll) {
+      setSelectedDevices([]);
+    } else {
+      setSelectedDevices(devices.map(device => device.id));
+    }
+    setSelectAll(!selectAll);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     navigate('/login');
@@ -318,6 +326,8 @@ const Home = () => {
               newDevice={newDevice}
               handleNewDeviceChange={handleNewDeviceChange}
               handleAddDevice={handleAddDevice}
+              handleSelectAllChange={handleSelectAllChange}
+              selectAll={selectAll}
             />
           )}
           {filteredDevices.map(device => (
@@ -326,13 +336,13 @@ const Home = () => {
               device={device}
               role={role}
               username={username}
+              selectedDevices={selectedDevices}
               editedDevices={editedDevices}
+              handleCheckboxChange={handleCheckboxChange}
               handleEditChange={handleEditChange}
               handleReserve={handleReserve}
-              handleApplyChanges={handleApplyChanges}
               handleDelete={handleDelete}
-              handleCheckboxChange={handleCheckboxChange}
-              selectedDevices={selectedDevices}
+              // handleApplyChanges={handleApplyChanges}
             />
           ))}
         </tbody>

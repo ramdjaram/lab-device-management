@@ -1,9 +1,15 @@
 import React from 'react';
 
-const AddDeviceForm = ({ newDevice, handleNewDeviceChange, handleAddDevice }) => {
+const AddDeviceForm = ({ newDevice, handleNewDeviceChange, handleAddDevice, handleSelectAllChange, selectAll }) => {
   return (
     <tr style={{ 'backgroundColor': '#4caf50' }}>
-      <td></td>
+      <td>
+        <input
+          type="checkbox"
+          checked={selectAll}
+          onChange={handleSelectAllChange}
+        />
+      </td>
       <td>
         <input
           type="text"
@@ -83,7 +89,7 @@ const AddDeviceForm = ({ newDevice, handleNewDeviceChange, handleAddDevice }) =>
           onChange={(e) => handleNewDeviceChange('status', e.target.value)}
         />
       </td>
-      <td colSpan={12}>
+      <td>
         <button onClick={handleAddDevice}>Add Device</button>
       </td>
     </tr>
