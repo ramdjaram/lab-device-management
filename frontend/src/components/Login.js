@@ -2,16 +2,18 @@ import React, {useState} from 'react';
 import axios from 'axios';
 import {useNavigate} from 'react-router-dom';
 import '../styles/Login.css';
+import config from '../config';
 
 const Login = () => {
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
 	const navigate = useNavigate();
+	const apiUrl = config.apiUrl;
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		try {
-			const response = await axios.post('http://localhost:5001/login', {username, password});
+			const response = await axios.post(`${apiUrl}/login`, {username, password});
 			localStorage.setItem('token', response.data.token); // Store the token in localStorage
 			navigate('/home'); // Redirect to home page after successful login
 		} catch (error) {

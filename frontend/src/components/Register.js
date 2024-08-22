@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import axios from 'axios';
 import {useNavigate} from 'react-router-dom';
 import '../styles/Login.css';
+import config from '../config';
 
 const Register = () => {
 	const [username, setUsername] = useState('');
@@ -10,6 +11,7 @@ const Register = () => {
 	const [role, setRole] = useState('user');
 	const [isAdmin, setIsAdmin] = useState(false);
 	const navigate = useNavigate();
+	const apiUrl = config.apiUrl;
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
@@ -17,7 +19,7 @@ const Register = () => {
 			alert('Passwords do not match');
 			return;
 		}
-		await axios.post('http://localhost:5001/register', {username, password, role});
+		await axios.post(`${apiUrl}/register`, {username, password, role});
 		navigate('/login'); // Redirect to login page after successful registration
 	};
 

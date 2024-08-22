@@ -7,6 +7,7 @@ import DeviceRow from './DeviceRow';
 import AddDeviceForm from './AddDeviceForm';
 import SearchBar from './SearchBar';
 import '../styles/SearchBar.css';
+import config from '../config';
 
 const Home = () => {
 	const [devices, setDevices] = useState([]);
@@ -24,10 +25,11 @@ const Home = () => {
 	const [sortOrder, setSortOrder] = useState('asc');
 	const [selectAll, setSelectAll] = useState(false);
 	const navigate = useNavigate();
+	const apiUrl = config.apiUrl;
 
 	const fetchDevices = async () => {
 		const token = localStorage.getItem('token');
-		const response = await axios.get('http://localhost:5001/devices', {
+		const response = await axios.get(`${apiUrl}/devices`, {
 			headers: {Authorization: token},
 		});
 		setDevices(response.data);
@@ -54,7 +56,7 @@ const Home = () => {
 		fetchDevices();
 		const fetchUserRole = async () => {
 			const token = localStorage.getItem('token');
-			const response = await axios.get('http://localhost:5001/user', {
+			const response = await axios.get(`${apiUrl}/user`, {
 				headers: {Authorization: token},
 			});
 			setRole(response.data.role);
@@ -63,7 +65,7 @@ const Home = () => {
 
 		const fetchUsers = async () => {
 			const token = localStorage.getItem('token');
-			const response = await axios.get('http://localhost:5001/users', {
+			const response = await axios.get(`${apiUrl}/users`, {
 				headers: {Authorization: token},
 			});
 			setUsers(response.data);
@@ -100,7 +102,7 @@ const Home = () => {
 
 	const handleReserve = async (id, reservation) => {
 		const token = localStorage.getItem('token');
-		await axios.put(`http://localhost:5001/devices/${id}/reserve`, {reservation}, {
+		await axios.put(`${apiUrl}/devices/${id}/reserve`, {reservation}, {
 			headers: {Authorization: token},
 		});
 		fetchDevices();
@@ -145,7 +147,7 @@ const Home = () => {
 		};
 
 		try {
-			await axios.put(`http://localhost:5001/devices/${id}`, updatedDevice, {
+			await axios.put(`${apiUrl}/devices/${id}`, updatedDevice, {
 				headers: {Authorization: token},
 			});
 			fetchDevices();
@@ -183,7 +185,7 @@ const Home = () => {
 
 		try {
 			await Promise.all(updates.map(({id, updatedDevice}) =>
-				axios.put(`http://localhost:5001/devices/${id}`, updatedDevice, {
+				axios.put(`${apiUrl}/devices/${id}`, updatedDevice, {
 					headers: {Authorization: token},
 				})
 			));
@@ -200,7 +202,7 @@ const Home = () => {
 
 		const token = localStorage.getItem('token');
 		try {
-			await axios.delete(`http://localhost:5001/devices/${id}`, {
+			await axios.delete(`${apiUrl}/devices/${id}`, {
 				headers: {Authorization: token},
 			});
 			fetchDevices();
@@ -211,7 +213,7 @@ const Home = () => {
 
 	const handleMassDelete = async () => {
 		const token = localStorage.getItem('token');
-		await axios.post('http://localhost:5001/devices/mass-delete', {ids: selectedDevices}, {
+		await axios.post(`${apiUrl}/devices/mass-delete`, {ids: selectedDevices}, {
 			headers: {Authorization: token},
 		});
 		fetchDevices();
@@ -273,7 +275,7 @@ const Home = () => {
 		};
 
 		try {
-			await axios.post(`http://localhost:5001/devices`, deviceToAdd, {
+			await axios.post(`${apiUrl}/devices`, deviceToAdd, {
 				headers: {Authorization: token},
 			});
 			fetchDevices();
